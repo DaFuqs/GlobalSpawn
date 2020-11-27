@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "de.dafuqs.globalspawn.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "PlayerManagerMixin",
+    "ServerPlayerEntityMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

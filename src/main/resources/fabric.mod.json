@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "globalspawn",
+  "version": "${version}",
+
+  "name": "GlobalSpawn",
+  "description": "API for setting player spawn position server wide",
+  "authors": [
+    "DaFuqs"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/DaFuqs/GlobalSpawn"
+  },
+
+  "license": "MIT",
+  "icon": "assets/globalspawn/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.dafuqs.globalspawn.GlobalSpawnCommon"
+    ],
+    "modmenu": [
+      "de.dafuqs.globalspawn.config.ModMenuConfig"
+    ]
+  },
+  "mixins": [
+    "globalspawn.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.10.8",
+    "fabric": "*",
+    "minecraft": ">=1.16.4"
+  },
+  "suggests": { }
+}

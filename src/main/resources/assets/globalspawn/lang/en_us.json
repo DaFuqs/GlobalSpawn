@@ -1,0 +1,12 @@
+{
+  "commands.globalspawn.globalspawnpoint.query_set_at": "Global spawn is set in dimension %s at x:%d y:%d z:%d.",
+  "commands.globalspawn.globalspawnpoint.query_not_set": "Global spawn is not set.",
+  "commands.globalspawn.globalspawnpoint.set_to": "Set global spawn in dimension %s at x:%d y:%d z:%d.",
+  "commands.globalspawn.globalspawnpoint.unset": "Global spawn removed.",
+
+  "text.autoconfig.GlobalSpawn.option.overrideSpawn": "Active (Override vanilla spawn)",
+  "text.autoconfig.GlobalSpawn.option.spawnDimension": "Dimension",
+  "text.autoconfig.GlobalSpawn.option.spawnX": "X coordinate",
+  "text.autoconfig.GlobalSpawn.option.spawnY": "Y coordinate",
+  "text.autoconfig.GlobalSpawn.option.spawnZ": "Z coordinate"
+}
