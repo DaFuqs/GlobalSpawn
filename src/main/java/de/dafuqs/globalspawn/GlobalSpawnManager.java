@@ -21,6 +21,7 @@ public class GlobalSpawnManager {
 
     public static void set(GlobalSpawnPoint globalSpawnPoint) {
         activeSpawnPointDefinition = globalSpawnPoint;
+        active = true;
         updateConfigFile();
     }
 
@@ -37,7 +38,11 @@ public class GlobalSpawnManager {
     }
 
     public static GlobalSpawnPoint get() {
-        return activeSpawnPointDefinition;
+        if(active) {
+            return activeSpawnPointDefinition;
+        } else {
+            return null;
+        }
     }
 
     public static boolean isActive() {
