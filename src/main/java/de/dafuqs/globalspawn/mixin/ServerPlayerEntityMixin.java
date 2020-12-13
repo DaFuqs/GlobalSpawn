@@ -29,32 +29,40 @@ public abstract class ServerPlayerEntityMixin {
     @Final
     public MinecraftServer server;
 
+    /**
+     * Override for ServerPlayerEntities "getSpawnPointDimension"
+     * @param cir The modified spawn point dimension
+     */
     @Inject(method = "getSpawnPointDimension", at = @At("HEAD"), cancellable = true)
     private void getSpawnPointDimension(CallbackInfoReturnable<RegistryKey<World>> cir) {
-        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.getRespawnData(spawnPointDimension, spawnPointPosition, spawnPointSet);
+        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.setRespawningPlayersDataWithoutSpawnPoint(spawnPointDimension, spawnPointPosition, spawnPointSet);
         if(globalSpawnPoint != null) {
-            spawnPointDimension = globalSpawnPoint.spawnPointDimension;
-            spawnPointPosition = globalSpawnPoint.spawnPointPosition;
-            cir.setReturnValue(globalSpawnPoint.spawnPointDimension);
+            cir.setReturnValue(globalSpawnPoint.getSpawnDimension());
         }
     }
 
+    /**
+     * Override for ServerPlayerEntities "getSpawnPointPosition"
+     * @param cir The modified spawn point position
+     */
     @Inject(method = "getSpawnPointPosition", at = @At("HEAD"), cancellable = true)
     public void getSpawnPointPosition(CallbackInfoReturnable<BlockPos> cir) {
-        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.getRespawnData(spawnPointDimension, spawnPointPosition, spawnPointSet);
+        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.setRespawningPlayersDataWithoutSpawnPoint(spawnPointDimension, spawnPointPosition, spawnPointSet);
         if(globalSpawnPoint != null) {
-            spawnPointDimension = globalSpawnPoint.spawnPointDimension;
-            spawnPointPosition = globalSpawnPoint.spawnPointPosition;
-            cir.setReturnValue(globalSpawnPoint.spawnPointPosition);
+            cir.setReturnValue(globalSpawnPoint.getSpawnBlockPos());
         }
     }
 
-    // on first connect
+    /**
+     * Called on first connect of a player
+     * @param world The default world
+     * @param callbackInfo CallbackInfo
+     */
     @Inject(method = "moveToSpawn", at = @At("HEAD"), cancellable = true)
-    private void moveToSpawn(ServerWorld world, CallbackInfo ci) {
-        boolean set = GlobalSpawnMixinHandler.moveToSpawn((ServerPlayerEntity) (Object) this);
+    private void moveToSpawn(ServerWorld world, CallbackInfo callbackInfo) {
+        boolean set = GlobalSpawnMixinHandler.moveNewPlayerToSpawn((ServerPlayerEntity) (Object) this);
         if(set) {
-            ci.cancel();
+            callbackInfo.cancel();
         }
     }
 

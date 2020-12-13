@@ -10,9 +10,8 @@ import net.minecraft.world.World;
 
 public class GlobalSpawnPoint {
 
-    public RegistryKey<World> spawnPointDimension;
-    public BlockPos spawnPointPosition;
-
+    private RegistryKey<World> spawnPointDimension;
+    private BlockPos spawnPointPosition;
 
     public GlobalSpawnPoint(RegistryKey<World> spawnPointDimension, BlockPos spawnPointPosition) {
         this.spawnPointDimension = spawnPointDimension;
@@ -30,6 +29,10 @@ public class GlobalSpawnPoint {
 
         compoundTag1.put("Pos", listTag);
         return compoundTag1;
+    }
+
+    public RegistryKey<World> getSpawnDimension() {
+        return spawnPointDimension;
     }
 
     public Vec3d getSpawnVec3D() {

@@ -3,55 +3,62 @@ package de.dafuqs.globalspawn;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-
-import java.util.Optional;
 
 public class GlobalSpawnMixinHandler {
 
     /**
      * Handles checks for getRespawnDimension and getRespawnPosition
-     * @param spawnPointDimension
-     * @param spawnPointPosition
-     * @param spawnPointSet
-     * @return
+     *
+     * Defaults (vanilla):
+     * Spawn Point never set: Dimension = Overworld
+     *                        Position  = null
+     *
+     * Respawn Anchor used:   Dimension = Nether
+     *                        Position  = Position of Anchor (can be broken in the meantime / empty!)
+     *
+     * @param playerSpawnPointDimension The ServerPlayerEntities property "spawnPointPosition" (can be null if never set)
+     * @param playerSpawnPointPosition The ServerPlayerEntities property "spawnPointDimension". Always set (default is OVERWORLD)
+     * @param hasPlayerSpawnPointSet The ServerPlayerEntities property "spawnPointSet". IS ONLY TRUE WHEN THE SPAWN POINT IS SET VIA COMMAND. The respawn anchor sets it to false!
+     * @return The new spawn point
      */
-    public static GlobalSpawnPoint getRespawnData(RegistryKey<World> spawnPointDimension, BlockPos spawnPointPosition, boolean spawnPointSet) {
+    public static GlobalSpawnPoint setRespawningPlayersDataWithoutSpawnPoint(RegistryKey<World> playerSpawnPointDimension, BlockPos playerSpawnPointPosition, boolean hasPlayerSpawnPointSet) {
         if(GlobalSpawnManager.isActive()) {
-            if (spawnPointDimension == World.OVERWORLD && spawnPointPosition == null) {
-                return GlobalSpawnManager.get();
+            // player has spawn point set via /spawnPoint command => don't handle that one
+            if(hasPlayerSpawnPointSet && playerSpawnPointPosition != null) {
+                // spawn point command used => vanilla behavior
+                return null;
+            } else if (playerSpawnPointPosition == null) {
+                // no spawn set => use global
+                return GlobalSpawnManager.getGlobalSpawnPoint();
+            } else {
+                // vanilla spawn set => try...
+                // if bed obstructed / respawn anchor empty etc: we have to catch it later
+                return null;
             }
+        } else {
+            //inactive => vanilla behavior
+            return null;
         }
-        return null;
-    }
-
-    /**
-     * Handles the search for respawn position in the world itself
-     * @param optional
-     * @return
-     */
-    public static Optional<Vec3d> getRespawnPlayer(Optional<Vec3d> optional) {
-        if(GlobalSpawnManager.isActive()) {
-            if (!optional.isPresent()) {
-                Vec3d vec3d = GlobalSpawnManager.get().getSpawnVec3D();
-                return Optional.of(vec3d);
-            }
-        }
-        return optional;
     }
 
     /**
      * Sets compound tags for the respawn position of new players
-     * @param compoundTag
-     * @return
+     *
+     * CompoundTag is null when players first join => modify
+     * The tag is not really set to the player (so not permanent)
+     * but used to position the player in the world on spawn
+     *
+     * @param compoundTag The NBTag of a connecting player
+     * @return CompoundTag with modified spawn position and dimension
      */
-    public static CompoundTag modifySpawnRegistry(CompoundTag compoundTag) {
+    public static CompoundTag modifySpawnRegistryPositionAndDimensionForNewPlayer(CompoundTag compoundTag) {
         // only for new players
         if(GlobalSpawnManager.isActive()) {
             if (compoundTag == null) {
-                return GlobalSpawnManager.get().getSpawnCompoundTag();
+                // new player => Add spawn tag
+                return GlobalSpawnManager.getGlobalSpawnPoint().getSpawnCompoundTag();
             }
         }
         return compoundTag;
@@ -61,9 +68,9 @@ public class GlobalSpawnMixinHandler {
      * Moving a newly joined player to the world spawn
      * @param serverPlayerEntity The player
      */
-    public static boolean moveToSpawn(ServerPlayerEntity serverPlayerEntity) {
+    public static boolean moveNewPlayerToSpawn(ServerPlayerEntity serverPlayerEntity) {
         if(GlobalSpawnManager.isActive()) {
-            BlockPos spawnBlockPos = GlobalSpawnManager.get().getSpawnBlockPos();
+            BlockPos spawnBlockPos = GlobalSpawnManager.getGlobalSpawnPoint().getSpawnBlockPos();
             serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, 0.0F, 0.0F);
             serverPlayerEntity.updatePosition(spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ());
             return true;

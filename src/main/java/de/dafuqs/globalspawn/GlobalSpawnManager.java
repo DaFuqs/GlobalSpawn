@@ -1,5 +1,6 @@
 package de.dafuqs.globalspawn;
 
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
@@ -9,7 +10,7 @@ import java.util.HashMap;
 
 public class GlobalSpawnManager {
 
-    private static HashMap<RegistryKey<World>, World> dimensions = new HashMap<>();
+    private static final HashMap<RegistryKey<World>, World> dimensions = new HashMap<>();
     private static boolean active;
     private static GlobalSpawnPoint activeSpawnPointDefinition;
 
@@ -28,16 +29,18 @@ public class GlobalSpawnManager {
     private static void updateConfigFile() {
         GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.active = active;
         if(activeSpawnPointDefinition != null) {
-            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnDimension = activeSpawnPointDefinition.spawnPointDimension.getValue().toString();
-            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnX = activeSpawnPointDefinition.spawnPointPosition.getX();
-            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnY = activeSpawnPointDefinition.spawnPointPosition.getY();
-            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnZ = activeSpawnPointDefinition.spawnPointPosition.getZ();
+            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnDimension = activeSpawnPointDefinition.getSpawnDimension().getValue().toString();
+
+            BlockPos spawnPointPosition = activeSpawnPointDefinition.getSpawnBlockPos();
+            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnX = spawnPointPosition.getX();
+            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnY = spawnPointPosition.getY();
+            GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.spawnZ = spawnPointPosition.getZ();
         }
 
         GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG_MANAGER.save();
     }
 
-    public static GlobalSpawnPoint get() {
+    public static GlobalSpawnPoint getGlobalSpawnPoint() {
         if(active) {
             return activeSpawnPointDefinition;
         } else {
@@ -47,10 +50,12 @@ public class GlobalSpawnManager {
 
     public static boolean isActive() {
         if(active && activeSpawnPointDefinition != null) {
-            if (existsWorld(activeSpawnPointDefinition.spawnPointDimension)) {
+            RegistryKey<World> spawnPointDimension = activeSpawnPointDefinition.getSpawnDimension();
+
+            if (existsWorld(spawnPointDimension)) {
                 return true;
             } else {
-                GlobalSpawnCommon.LOGGER.warn("Spawn dimension " + activeSpawnPointDefinition.spawnPointDimension + " is not loaded. GlobalSpawn is disabled");
+                GlobalSpawnCommon.LOGGER.warn("Spawn dimension " + spawnPointDimension + " is not loaded. GlobalSpawn is disabled");
                 return false;
             }
         } else {
@@ -61,6 +66,12 @@ public class GlobalSpawnManager {
     private static boolean existsWorld(RegistryKey<World> registryKey) {
         return dimensions.containsKey(registryKey);
     }
+
+    public static ServerWorld getWorld(RegistryKey<World> registryKey) {
+        return (ServerWorld) dimensions.get(registryKey);
+    }
+
+
 
     public static void initialize() {
         active = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.active;

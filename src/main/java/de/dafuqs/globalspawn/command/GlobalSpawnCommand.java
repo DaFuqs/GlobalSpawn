@@ -8,6 +8,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 
 public class GlobalSpawnCommand {
 
@@ -39,11 +41,14 @@ public class GlobalSpawnCommand {
         GlobalSpawnPoint globalSpawnPoint;
         switch (action) {
             case QUERY:
-                globalSpawnPoint = GlobalSpawnManager.get();
+                globalSpawnPoint = GlobalSpawnManager.getGlobalSpawnPoint();
                 if(globalSpawnPoint == null) {
                     source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.query_not_set"), false);
                 } else {
-                    source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.query_set_at", globalSpawnPoint.spawnPointDimension.getValue(), globalSpawnPoint.spawnPointPosition.getX(), globalSpawnPoint.spawnPointPosition.getY(), globalSpawnPoint.spawnPointPosition.getZ()), false);
+                    BlockPos spawnBlockPos = globalSpawnPoint.getSpawnBlockPos();
+                    RegistryKey<World> spawnWorld = globalSpawnPoint.getSpawnDimension();
+
+                    source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.query_set_at", spawnWorld.getValue(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ()), false);
                 }
                 break;
             case SET:
