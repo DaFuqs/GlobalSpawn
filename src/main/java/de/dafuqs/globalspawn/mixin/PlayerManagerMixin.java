@@ -64,22 +64,27 @@ public abstract class PlayerManagerMixin {
     @Inject(method = "respawnPlayer", at = @At("HEAD"), cancellable = true)
     public void respawnPlayer(ServerPlayerEntity player, boolean alive, CallbackInfoReturnable<ServerPlayerEntity> callbackInfoReturnable) {
 
-        BlockPos blockPos = player.getSpawnPointPosition();
-        float f = player.getSpawnAngle();
-        boolean bl = player.isSpawnPointSet();
-        RegistryKey<World> serverWorldRegistryKey = player.getSpawnPointDimension();
-        ServerWorld originalSpawnPoint = this.server.getWorld(serverWorldRegistryKey);
-        Optional<Vec3d> originalSpawnPosition = PlayerEntity.findRespawnPosition(originalSpawnPoint, blockPos, f, bl, true);
+        BlockPos myBlockPos = player.getSpawnPointPosition();
+        float myF = player.getSpawnAngle();
+        boolean myBl = player.isSpawnPointSet();
+        RegistryKey<World> originalServerWorldRegistryKey = player.getSpawnPointDimension();
+        ServerWorld originalSpawnPoint = this.server.getWorld(originalServerWorldRegistryKey);
+        Optional<Vec3d> originalSpawnPosition;
+        if(myBlockPos != null) {
+            originalSpawnPosition = PlayerEntity.findRespawnPosition(originalSpawnPoint, myBlockPos, myF, myBl, true);
+        } else {
+            originalSpawnPosition = Optional.empty();
+        }
 
         // Override vanilla respawning behavior if:
         // no respawn position
         // or spawn position is obstructed (respawn anchor empty, bed destroyed, ...)
-        boolean shouldOverrideVanilla = GlobalSpawnManager.isActive() && !originalSpawnPosition.isPresent();
+        boolean shouldOverrideVanilla = GlobalSpawnManager.isGlobalRespawnPointActive() && !originalSpawnPosition.isPresent();
         if(shouldOverrideVanilla) {
             this.players.remove(player);
             player.getServerWorld().removePlayer(player);
 
-            ServerWorld overriddenSpawnPointWorld = this.server.getWorld(GlobalSpawnManager.getGlobalSpawnPoint().getSpawnDimension());
+            ServerWorld overriddenSpawnPointWorld = this.server.getWorld(GlobalSpawnManager.getGlobalRespawnPoint().getSpawnDimension());
 
             Object serverPlayerInteractionManager2;
             if (this.server.isDemo()) {
@@ -101,8 +106,8 @@ public abstract class PlayerManagerMixin {
             this.setGameModeCustom(serverPlayerEntity, player, overriddenSpawnPointWorld);
             serverPlayerEntity.networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.NO_RESPAWN_BLOCK, 0.0F));
 
-            Vec3d vec3d = GlobalSpawnManager.getGlobalSpawnPoint().getSpawnVec3D();
-            serverPlayerEntity.refreshPositionAndAngles(vec3d.x, vec3d.y, vec3d.z, f, 0.0F);
+            Vec3d vec3d = GlobalSpawnManager.getGlobalRespawnPoint().getSpawnVec3D();
+            serverPlayerEntity.refreshPositionAndAngles(vec3d.x, vec3d.y, vec3d.z, myF, 0.0F);
             while(!overriddenSpawnPointWorld.isSpaceEmpty(serverPlayerEntity) && serverPlayerEntity.getY() < 256.0D) {
                 serverPlayerEntity.updatePosition(serverPlayerEntity.getX(), serverPlayerEntity.getY() + 1.0D, serverPlayerEntity.getZ());
             }

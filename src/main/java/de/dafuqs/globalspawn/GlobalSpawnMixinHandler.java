@@ -24,14 +24,14 @@ public class GlobalSpawnMixinHandler {
      * @return The new spawn point
      */
     public static GlobalSpawnPoint setRespawningPlayersDataWithoutSpawnPoint(RegistryKey<World> playerSpawnPointDimension, BlockPos playerSpawnPointPosition, boolean hasPlayerSpawnPointSet) {
-        if(GlobalSpawnManager.isActive()) {
+        if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
             // player has spawn point set via /spawnPoint command => don't handle that one
             if(hasPlayerSpawnPointSet && playerSpawnPointPosition != null) {
                 // spawn point command used => vanilla behavior
                 return null;
             } else if (playerSpawnPointPosition == null) {
                 // no spawn set => use global
-                return GlobalSpawnManager.getGlobalSpawnPoint();
+                return GlobalSpawnManager.getGlobalRespawnPoint();
             } else {
                 // vanilla spawn set => try...
                 // if bed obstructed / respawn anchor empty etc: we have to catch it later
@@ -44,7 +44,7 @@ public class GlobalSpawnMixinHandler {
     }
 
     /**
-     * Sets compound tags for the respawn position of new players
+     * Sets compound tags for the spawn position of new players
      *
      * CompoundTag is null when players first join => modify
      * The tag is not really set to the player (so not permanent)
@@ -54,11 +54,13 @@ public class GlobalSpawnMixinHandler {
      * @return CompoundTag with modified spawn position and dimension
      */
     public static CompoundTag modifySpawnRegistryPositionAndDimensionForNewPlayer(CompoundTag compoundTag) {
-        // only for new players
-        if(GlobalSpawnManager.isActive()) {
-            if (compoundTag == null) {
-                // new player => Add spawn tag
-                return GlobalSpawnManager.getGlobalSpawnPoint().getSpawnCompoundTag();
+        // triggers only for new players
+        if (compoundTag == null) {
+            // new player => Add spawn tag
+            if(GlobalSpawnManager.isInitialSpawnPointActive()) {
+                return GlobalSpawnManager.getInitialSpawnPoint().getSpawnCompoundTag();
+            } else if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
+                return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnCompoundTag();
             }
         }
         return compoundTag;
@@ -68,11 +70,19 @@ public class GlobalSpawnMixinHandler {
      * Moving a newly joined player to the world spawn
      * @param serverPlayerEntity The player
      */
-    public static boolean moveNewPlayerToSpawn(ServerPlayerEntity serverPlayerEntity) {
-        if(GlobalSpawnManager.isActive()) {
-            BlockPos spawnBlockPos = GlobalSpawnManager.getGlobalSpawnPoint().getSpawnBlockPos();
+    public static boolean movePlayerToSpawn(ServerPlayerEntity serverPlayerEntity) {
+        boolean isNewPlayer = serverPlayerEntity.distanceTraveled == 0;
+        //boolean isNewPlayer = GlobalSpawnManager.isNewPlayer(serverPlayerEntity);
+
+        if(!isNewPlayer && GlobalSpawnManager.isInitialSpawnPointActive()) {
+            BlockPos spawnBlockPos = GlobalSpawnManager.getInitialSpawnPoint().getSpawnBlockPos();
             serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, 0.0F, 0.0F);
-            serverPlayerEntity.updatePosition(spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ());
+            serverPlayerEntity.updatePosition(spawnBlockPos.getX() + 0.5F, spawnBlockPos.getY(), spawnBlockPos.getZ() + 0.5F);
+            return true;
+        } else if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
+            BlockPos spawnBlockPos = GlobalSpawnManager.getGlobalRespawnPoint().getSpawnBlockPos();
+            serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, 0.0F, 0.0F);
+            serverPlayerEntity.updatePosition(spawnBlockPos.getX() + 0.5F, spawnBlockPos.getY(), spawnBlockPos.getZ() + 0.5F);
             return true;
         }
         return false;

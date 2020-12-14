@@ -23,9 +23,9 @@ public class GlobalSpawnPoint {
         compoundTag1.putString("Dimension", spawnPointDimension.getValue().toString());
 
         ListTag listTag = new ListTag();
-        listTag.addTag(0, DoubleTag.of(spawnPointPosition.getX()));
+        listTag.addTag(0, DoubleTag.of(spawnPointPosition.getX() + 0.5));
         listTag.addTag(1, DoubleTag.of(spawnPointPosition.getY()));
-        listTag.addTag(2, DoubleTag.of(spawnPointPosition.getZ()));
+        listTag.addTag(2, DoubleTag.of(spawnPointPosition.getZ() + 0.5));
 
         compoundTag1.put("Pos", listTag);
         return compoundTag1;
@@ -36,7 +36,7 @@ public class GlobalSpawnPoint {
     }
 
     public Vec3d getSpawnVec3D() {
-        return new Vec3d(spawnPointPosition.getX(), spawnPointPosition.getY(), spawnPointPosition.getZ());
+        return new Vec3d(spawnPointPosition.getX() + 0.5, spawnPointPosition.getY(), spawnPointPosition.getZ() + 0.5);
     }
 
     public BlockPos getSpawnBlockPos() {

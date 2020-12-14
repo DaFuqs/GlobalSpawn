@@ -54,13 +54,13 @@ public abstract class ServerPlayerEntityMixin {
     }
 
     /**
-     * Called on first connect of a player
+     * Called on spawn of a player
      * @param world The default world
      * @param callbackInfo CallbackInfo
      */
     @Inject(method = "moveToSpawn", at = @At("HEAD"), cancellable = true)
     private void moveToSpawn(ServerWorld world, CallbackInfo callbackInfo) {
-        boolean set = GlobalSpawnMixinHandler.moveNewPlayerToSpawn((ServerPlayerEntity) (Object) this);
+        boolean set = GlobalSpawnMixinHandler.movePlayerToSpawn((ServerPlayerEntity) (Object) this);
         if(set) {
             callbackInfo.cancel();
         }
