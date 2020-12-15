@@ -1,7 +1,5 @@
 package de.dafuqs.globalspawn;
 
-import net.minecraft.advancement.Advancement;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
@@ -18,20 +16,10 @@ public class GlobalSpawnManager {
     private static boolean initialSpawnActive;
     private static GlobalSpawnPoint initialSpawnPoint;
 
-    public static Advancement advancement;
-
     // GENERAL
     public static void initialize() {
         respawnPointActive = false;
         initialSpawnActive = false;
-    }
-
-    public static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
-        if(advancement == null) {
-            Identifier takingInventoryIdentifier = new Identifier("minecraft", "story/root");
-            advancement = GlobalSpawnCommon.minecraftServer.getAdvancementLoader().get(takingInventoryIdentifier);
-        }
-        return serverPlayerEntity.getAdvancementTracker().getProgress(advancement).isDone();
     }
 
     public static void addWorld(World world) {

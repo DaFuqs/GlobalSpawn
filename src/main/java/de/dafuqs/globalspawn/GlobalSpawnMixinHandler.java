@@ -2,6 +2,8 @@ package de.dafuqs.globalspawn;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.stat.Stat;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -71,10 +73,7 @@ public class GlobalSpawnMixinHandler {
      * @param serverPlayerEntity The player
      */
     public static boolean movePlayerToSpawn(ServerPlayerEntity serverPlayerEntity) {
-        boolean isNewPlayer = serverPlayerEntity.distanceTraveled == 0;
-        //boolean isNewPlayer = GlobalSpawnManager.isNewPlayer(serverPlayerEntity);
-
-        if(!isNewPlayer && GlobalSpawnManager.isInitialSpawnPointActive()) {
+        if(isNewPlayer(serverPlayerEntity) && GlobalSpawnManager.isInitialSpawnPointActive()) {
             BlockPos spawnBlockPos = GlobalSpawnManager.getInitialSpawnPoint().getSpawnBlockPos();
             serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, 0.0F, 0.0F);
             serverPlayerEntity.updatePosition(spawnBlockPos.getX() + 0.5F, spawnBlockPos.getY(), spawnBlockPos.getZ() + 0.5F);
@@ -86,6 +85,12 @@ public class GlobalSpawnMixinHandler {
             return true;
         }
         return false;
+    }
+
+    private static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
+        Stat deathsStat = Stats.CUSTOM.getOrCreateStat(Stats.DEATHS);
+        int deaths = serverPlayerEntity.getStatHandler().getStat(deathsStat);
+        return deaths == 0;
     }
 
 }
