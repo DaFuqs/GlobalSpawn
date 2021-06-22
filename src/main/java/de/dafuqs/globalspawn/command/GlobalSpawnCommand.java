@@ -40,9 +40,9 @@ public class GlobalSpawnCommand {
     static int executeGlobalRespawnPoint(ServerCommandSource source, Action action, ServerWorld serverWorld, BlockPos blockPos) {
         GlobalSpawnPoint globalSpawnPoint;
         switch (action) {
-            case QUERY:
+            case QUERY -> {
                 globalSpawnPoint = GlobalSpawnManager.getGlobalRespawnPoint();
-                if(globalSpawnPoint == null) {
+                if (globalSpawnPoint == null) {
                     source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.query_not_set"), false);
                 } else {
                     BlockPos spawnBlockPos = globalSpawnPoint.getSpawnBlockPos();
@@ -50,16 +50,16 @@ public class GlobalSpawnCommand {
 
                     source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.query_set_at", spawnWorld.getValue(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ()), false);
                 }
-                break;
-            case SET:
+            }
+            case SET -> {
                 globalSpawnPoint = new GlobalSpawnPoint(serverWorld.getRegistryKey(), blockPos);
                 GlobalSpawnManager.setRespawnPoint(globalSpawnPoint);
                 source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.set_to", serverWorld.getRegistryKey().getValue(), blockPos.getX(), blockPos.getY(), blockPos.getZ()), true);
-                break;
-            case UNSET:
+            }
+            case UNSET -> {
                 GlobalSpawnManager.unsetRespawnPoint();
                 source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.unset"), true);
-                break;
+            }
         }
         return 1;
     }

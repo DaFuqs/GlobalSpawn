@@ -1,6 +1,6 @@
 package de.dafuqs.globalspawn;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.Stats;
@@ -55,14 +55,14 @@ public class GlobalSpawnMixinHandler {
      * @param compoundTag The NBTag of a connecting player
      * @return CompoundTag with modified spawn position and dimension
      */
-    public static CompoundTag modifySpawnRegistryPositionAndDimensionForNewPlayer(CompoundTag compoundTag) {
+    public static NbtCompound modifySpawnRegistryPositionAndDimensionForNewPlayer(NbtCompound compoundTag) {
         // triggers only for new players
         if (compoundTag == null) {
             // new player => Add spawn tag
             if(GlobalSpawnManager.isInitialSpawnPointActive()) {
-                return GlobalSpawnManager.getInitialSpawnPoint().getSpawnCompoundTag();
+                return GlobalSpawnManager.getInitialSpawnPoint().getSpawnNbtCompound();
             } else if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
-                return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnCompoundTag();
+                return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound();
             }
         }
         return compoundTag;

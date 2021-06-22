@@ -1,8 +1,8 @@
 package de.dafuqs.globalspawn;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtDouble;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.RegistryKey;
@@ -10,22 +10,22 @@ import net.minecraft.world.World;
 
 public class GlobalSpawnPoint {
 
-    private RegistryKey<World> spawnPointDimension;
-    private BlockPos spawnPointPosition;
+    private final RegistryKey<World> spawnPointDimension;
+    private final BlockPos spawnPointPosition;
 
     public GlobalSpawnPoint(RegistryKey<World> spawnPointDimension, BlockPos spawnPointPosition) {
         this.spawnPointDimension = spawnPointDimension;
         this.spawnPointPosition = spawnPointPosition;
     }
 
-    public CompoundTag getSpawnCompoundTag() {
-        CompoundTag compoundTag1 = new CompoundTag();
+    public NbtCompound getSpawnNbtCompound() {
+        NbtCompound compoundTag1 = new NbtCompound();
         compoundTag1.putString("Dimension", spawnPointDimension.getValue().toString());
 
-        ListTag listTag = new ListTag();
-        listTag.addTag(0, DoubleTag.of(spawnPointPosition.getX() + 0.5));
-        listTag.addTag(1, DoubleTag.of(spawnPointPosition.getY()));
-        listTag.addTag(2, DoubleTag.of(spawnPointPosition.getZ() + 0.5));
+        NbtList listTag = new NbtList();
+        listTag.addElement(0, NbtDouble.of(spawnPointPosition.getX() + 0.5));
+        listTag.addElement(1, NbtDouble.of(spawnPointPosition.getY()));
+        listTag.addElement(2, NbtDouble.of(spawnPointPosition.getZ() + 0.5));
 
         compoundTag1.put("Pos", listTag);
         return compoundTag1;
