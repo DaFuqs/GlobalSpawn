@@ -2,13 +2,11 @@ package de.dafuqs.globalspawn.mixin;
 
 import de.dafuqs.globalspawn.GlobalSpawnMixinHandler;
 import de.dafuqs.globalspawn.GlobalSpawnPoint;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,9 +23,6 @@ public abstract class ServerPlayerEntityMixin {
     private BlockPos spawnPointPosition;
     @Shadow
     private boolean spawnPointSet;
-    @Shadow
-    @Final
-    public MinecraftServer server;
 
     /**
      * Override for ServerPlayerEntities "getSpawnPointDimension"
@@ -62,6 +57,7 @@ public abstract class ServerPlayerEntityMixin {
     private void moveToSpawn(ServerWorld world, CallbackInfo callbackInfo) {
         boolean set = GlobalSpawnMixinHandler.movePlayerToSpawn((ServerPlayerEntity) (Object) this);
         if(set) {
+            ((ServerPlayerEntity) (Object) this).refreshPositionAndAngles(((ServerPlayerEntity) (Object) this).getBlockPos(), 0.0F, 0.0F);
             callbackInfo.cancel();
         }
     }

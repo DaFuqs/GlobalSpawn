@@ -75,7 +75,7 @@ public class GlobalSpawnMixinHandler {
      * @return CompoundTag with modified spawn position and dimension
      */
     public static NbtCompound modifySpawnRegistryPositionAndDimensionForExistingPlayer(NbtCompound nbtCompound) {
-        if(GlobalSpawnManager.isGlobalRespawnPointActive() && GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.alwaysSpawnAtGlobalSpawnOnJoin) {
+        if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
             return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound(nbtCompound);
         } else {
             return nbtCompound;
@@ -107,6 +107,10 @@ public class GlobalSpawnMixinHandler {
         int deaths = serverPlayerEntity.getStatHandler().getStat(deathsStat);
         int walked = serverPlayerEntity.getStatHandler().getStat(walkedStat);
         return deaths == 0 && walked == 0;
+    }
+
+    public static boolean isNewPlayer(NbtCompound nbtCompound) {
+        return nbtCompound == null;
     }
 
 }
