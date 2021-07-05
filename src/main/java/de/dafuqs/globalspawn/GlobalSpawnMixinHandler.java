@@ -4,6 +4,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.Stats;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -52,20 +53,33 @@ public class GlobalSpawnMixinHandler {
      * The tag is not really set to the player (so not permanent)
      * but used to position the player in the world on spawn
      *
-     * @param compoundTag The NBTag of a connecting player
+     * @param nbtCompound The NBTag of a connecting player
      * @return CompoundTag with modified spawn position and dimension
      */
-    public static NbtCompound modifySpawnRegistryPositionAndDimensionForNewPlayer(NbtCompound compoundTag) {
-        // triggers only for new players
-        if (compoundTag == null) {
-            // new player => Add spawn tag
-            if(GlobalSpawnManager.isInitialSpawnPointActive()) {
-                return GlobalSpawnManager.getInitialSpawnPoint().getSpawnNbtCompound();
-            } else if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
-                return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound();
-            }
+    public static NbtCompound modifySpawnRegistryPositionAndDimensionForNewPlayer(NbtCompound nbtCompound) {
+        if(GlobalSpawnManager.isInitialSpawnPointActive()) {
+            return GlobalSpawnManager.getInitialSpawnPoint().getSpawnNbtCompound();
+        } else if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
+            return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound();
         }
-        return compoundTag;
+        return nbtCompound;
+    }
+
+    /**
+     * Sets compound tags for the spawn position of existing players
+     *
+     * The tag is not really set to the player (so not permanent)
+     * but used to position the player in the world on spawn
+     *
+     * @param nbtCompound The NBTag of a connecting player
+     * @return CompoundTag with modified spawn position and dimension
+     */
+    public static NbtCompound modifySpawnRegistryPositionAndDimensionForExistingPlayer(NbtCompound nbtCompound) {
+        if(GlobalSpawnManager.isGlobalRespawnPointActive() && GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.alwaysSpawnAtGlobalSpawnOnJoin) {
+            return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound();
+        } else {
+            return nbtCompound;
+        }
     }
 
     /**
@@ -89,8 +103,10 @@ public class GlobalSpawnMixinHandler {
 
     private static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
         Stat deathsStat = Stats.CUSTOM.getOrCreateStat(Stats.DEATHS);
+        Stat walkedStat = Stats.CUSTOM.getOrCreateStat(new Identifier("walk_one_cm"));
         int deaths = serverPlayerEntity.getStatHandler().getStat(deathsStat);
-        return deaths == 0;
+        int walked = serverPlayerEntity.getStatHandler().getStat(walkedStat);
+        return deaths == 0 && walked == 0;
     }
 
 }

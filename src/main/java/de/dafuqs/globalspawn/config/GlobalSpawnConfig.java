@@ -6,6 +6,8 @@ import me.shedaniel.autoconfig.annotation.Config;
 @Config(name = "GlobalSpawn")
 public class GlobalSpawnConfig implements ConfigData {
 
+    public boolean alwaysSpawnAtGlobalSpawnOnJoin = false;
+
     public boolean globalRespawnPointActive = false;
     public String globalRespawnDimension = "minecraft:overworld";
     public int globalRespawnPositionX = 50;

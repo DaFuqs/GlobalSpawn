@@ -55,7 +55,13 @@ public abstract class PlayerManagerMixin {
      */
     @ModifyVariable(method = "onPlayerConnect", at = @At("STORE"), ordinal = 0)
     private NbtCompound onPlayerConnect(NbtCompound nbtCompound) {
-        return GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForNewPlayer(nbtCompound);
+
+        if (nbtCompound == null) { // true only for new players
+            // new player => Add spawn tag)
+            return GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForNewPlayer(nbtCompound);
+        } else {
+            return GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForExistingPlayer(nbtCompound);
+        }
     }
 
     @Inject(method = "respawnPlayer", at = @At("HEAD"), cancellable = true)

@@ -9,6 +9,7 @@
   "commands.globalspawn.initialspawnpoint.set_to": "Set initial spawn in dimension %s at x:%d y:%d z:%d.",
   "commands.globalspawn.initialspawnpoint.unset": "Initial spawn removed.",
 
+  "text.autoconfig.GlobalSpawn.option.alwaysSpawnAtGlobalSpawnOnJoin": "Always spawn on the active global respawn point when joining the world",
   "text.autoconfig.GlobalSpawn.option.globalRespawnPointActive": "Global Respawn Active (Override vanilla respawn point)",
   "text.autoconfig.GlobalSpawn.option.globalRespawnDimension": "Respawn Dimension",
   "text.autoconfig.GlobalSpawn.option.globalRespawnPositionX": "Respawn X coordinate",
