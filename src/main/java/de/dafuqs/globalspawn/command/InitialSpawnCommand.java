@@ -48,17 +48,17 @@ public class InitialSpawnCommand {
                     BlockPos spawnBlockPos = initialSpawnPoint.getSpawnBlockPos();
                     RegistryKey<World> spawnWorld = initialSpawnPoint.getSpawnDimension();
 
-                    source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.query_set_at", spawnWorld.getValue(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ()), false);
+                    source.sendFeedback(new TranslatableText("commands.globalspawn.initialspawnpoint.query_set_at", spawnWorld.getValue(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ()), false);
                 }
             }
             case SET -> {
                 initialSpawnPoint = new GlobalSpawnPoint(serverWorld.getRegistryKey(), blockPos);
                 GlobalSpawnManager.setInitialSpawnPoint(initialSpawnPoint);
-                source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.set_to", serverWorld.getRegistryKey().getValue(), blockPos.getX(), blockPos.getY(), blockPos.getZ()), true);
+                source.sendFeedback(new TranslatableText("commands.globalspawn.initialspawnpoint.set_to", serverWorld.getRegistryKey().getValue(), blockPos.getX(), blockPos.getY(), blockPos.getZ()), true);
             }
             case UNSET -> {
                 GlobalSpawnManager.unsetInitialSpawnPoint();
-                source.sendFeedback(new TranslatableText("commands.globalspawn.globalspawnpoint.unset"), true);
+                source.sendFeedback(new TranslatableText("commands.globalspawn.initialspawnpoint.unset"), true);
             }
         }
         return 1;

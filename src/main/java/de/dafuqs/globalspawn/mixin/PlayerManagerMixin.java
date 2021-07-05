@@ -50,12 +50,11 @@ public abstract class PlayerManagerMixin {
     /**
      * Called everytime a player connects to the server
      * Weather it's the first connection or not
-     * @param nbtCompound When new player: An empty NBTag
+     * @param nbtCompound When new player: An empty nbtCompound
      * @return modified NBTag with globalSpawns spawn properties
      */
     @ModifyVariable(method = "onPlayerConnect", at = @At("STORE"), ordinal = 0)
     private NbtCompound onPlayerConnect(NbtCompound nbtCompound) {
-
         if (nbtCompound == null) { // true only for new players
             // new player => Add spawn tag)
             return GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForNewPlayer(nbtCompound);
@@ -82,7 +81,7 @@ public abstract class PlayerManagerMixin {
         // Override vanilla respawning behavior if:
         // no respawn position
         // or spawn position is obstructed (respawn anchor empty, bed destroyed, ...)
-        boolean shouldOverrideVanilla = GlobalSpawnManager.isGlobalRespawnPointActive() && originalSpawnPosition.isEmpty();
+        boolean shouldOverrideVanilla = GlobalSpawnManager.isGlobalRespawnPointActive() && (originalSpawnPosition.isEmpty());
         if(shouldOverrideVanilla) {
             this.players.remove(player);
             player.getServerWorld().removePlayer(player, Entity.RemovalReason.DISCARDED);

@@ -18,17 +18,20 @@ public class GlobalSpawnPoint {
         this.spawnPointPosition = spawnPointPosition;
     }
 
-    public NbtCompound getSpawnNbtCompound() {
-        NbtCompound compoundTag1 = new NbtCompound();
-        compoundTag1.putString("Dimension", spawnPointDimension.getValue().toString());
+    public NbtCompound getSpawnNbtCompound(NbtCompound nbtCompound) {
+        if(nbtCompound == null) {
+            nbtCompound = new NbtCompound();
+        }
+
+        nbtCompound.putString("Dimension", spawnPointDimension.getValue().toString());
 
         NbtList listTag = new NbtList();
         listTag.addElement(0, NbtDouble.of(spawnPointPosition.getX() + 0.5));
         listTag.addElement(1, NbtDouble.of(spawnPointPosition.getY()));
         listTag.addElement(2, NbtDouble.of(spawnPointPosition.getZ() + 0.5));
 
-        compoundTag1.put("Pos", listTag);
-        return compoundTag1;
+        nbtCompound.put("Pos", listTag);
+        return nbtCompound;
     }
 
     public RegistryKey<World> getSpawnDimension() {

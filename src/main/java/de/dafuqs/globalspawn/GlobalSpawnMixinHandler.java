@@ -58,9 +58,9 @@ public class GlobalSpawnMixinHandler {
      */
     public static NbtCompound modifySpawnRegistryPositionAndDimensionForNewPlayer(NbtCompound nbtCompound) {
         if(GlobalSpawnManager.isInitialSpawnPointActive()) {
-            return GlobalSpawnManager.getInitialSpawnPoint().getSpawnNbtCompound();
+            return GlobalSpawnManager.getInitialSpawnPoint().getSpawnNbtCompound(nbtCompound);
         } else if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
-            return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound();
+            return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound(nbtCompound);
         }
         return nbtCompound;
     }
@@ -76,7 +76,7 @@ public class GlobalSpawnMixinHandler {
      */
     public static NbtCompound modifySpawnRegistryPositionAndDimensionForExistingPlayer(NbtCompound nbtCompound) {
         if(GlobalSpawnManager.isGlobalRespawnPointActive() && GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.alwaysSpawnAtGlobalSpawnOnJoin) {
-            return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound();
+            return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound(nbtCompound);
         } else {
             return nbtCompound;
         }
