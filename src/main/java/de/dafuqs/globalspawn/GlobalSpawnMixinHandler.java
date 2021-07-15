@@ -87,7 +87,7 @@ public class GlobalSpawnMixinHandler {
      * @param serverPlayerEntity The player
      */
     public static boolean movePlayerToSpawn(ServerPlayerEntity serverPlayerEntity) {
-        if(isNewPlayer(serverPlayerEntity) && GlobalSpawnManager.isInitialSpawnPointActive()) {
+        if(GlobalSpawnManager.isInitialSpawnPointActive() && isNewPlayer(serverPlayerEntity)) {
             BlockPos spawnBlockPos = GlobalSpawnManager.getInitialSpawnPoint().getSpawnBlockPos();
             serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, 0.0F, 0.0F);
             serverPlayerEntity.updatePosition(spawnBlockPos.getX() + 0.5F, spawnBlockPos.getY(), spawnBlockPos.getZ() + 0.5F);

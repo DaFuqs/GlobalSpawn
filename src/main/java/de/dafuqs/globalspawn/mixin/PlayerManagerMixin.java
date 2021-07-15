@@ -55,12 +55,12 @@ public abstract class PlayerManagerMixin {
     @Inject(method = "Lnet/minecraft/server/PlayerManager;loadPlayerData(Lnet/minecraft/server/network/ServerPlayerEntity;)Lnet/minecraft/nbt/NbtCompound;", at = @At("RETURN"), cancellable = true)
     public void loadPlayerData(ServerPlayerEntity player, CallbackInfoReturnable<NbtCompound> cir) {
         NbtCompound currentCompound = cir.getReturnValue();
-        if(GlobalSpawnMixinHandler.isNewPlayer(currentCompound)) {
+        if(GlobalSpawnManager.isInitialSpawnPointActive() && GlobalSpawnMixinHandler.isNewPlayer(currentCompound)) {
             currentCompound = new NbtCompound();
             GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForNewPlayer(currentCompound);
             player.readNbt(currentCompound);
             cir.setReturnValue(currentCompound);
-        } else if(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.alwaysSpawnAtGlobalSpawnOnJoin) {
+        } else if(GlobalSpawnManager.isGlobalRespawnPointActive() && GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.alwaysSpawnAtGlobalSpawnOnJoin) {
             currentCompound = GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForExistingPlayer(currentCompound);
             player.readNbt(currentCompound);
             cir.setReturnValue(currentCompound);
@@ -69,60 +69,61 @@ public abstract class PlayerManagerMixin {
 
     @Inject(method = "respawnPlayer", at = @At("HEAD"), cancellable = true)
     public void respawnPlayer(ServerPlayerEntity player, boolean alive, CallbackInfoReturnable<ServerPlayerEntity> callbackInfoReturnable) {
-
-        BlockPos myBlockPos = player.getSpawnPointPosition();
-        float myF = player.getSpawnAngle();
-        boolean myBl = player.isSpawnPointSet();
-        RegistryKey<World> originalServerWorldRegistryKey = player.getSpawnPointDimension();
-        ServerWorld originalSpawnPoint = this.server.getWorld(originalServerWorldRegistryKey);
-        Optional<Vec3d> originalSpawnPosition;
-        if(myBlockPos != null) {
-            originalSpawnPosition = PlayerEntity.findRespawnPosition(originalSpawnPoint, myBlockPos, myF, myBl, true);
-        } else {
-            originalSpawnPosition = Optional.empty();
-        }
-
-        // Override vanilla respawning behavior if:
-        // no respawn position
-        // or spawn position is obstructed (respawn anchor empty, bed destroyed, ...)
-        boolean shouldOverrideVanilla = GlobalSpawnManager.isGlobalRespawnPointActive() && (originalSpawnPosition.isEmpty());
-        if(shouldOverrideVanilla) {
-            this.players.remove(player);
-            player.getServerWorld().removePlayer(player, Entity.RemovalReason.DISCARDED);
-
-            ServerWorld overriddenSpawnPointWorld = this.server.getWorld(GlobalSpawnManager.getGlobalRespawnPoint().getSpawnDimension());
-
-            ServerPlayerEntity serverPlayerEntity = new ServerPlayerEntity(this.server, overriddenSpawnPointWorld, player.getGameProfile());
-            serverPlayerEntity.networkHandler = player.networkHandler;
-            serverPlayerEntity.copyFrom(player, alive);
-            serverPlayerEntity.setId(player.getId());
-            serverPlayerEntity.setMainArm(player.getMainArm());
-
-            for (String scoreBoardTag : player.getScoreboardTags()) {
-                serverPlayerEntity.addScoreboardTag(scoreBoardTag);
+        if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
+            BlockPos myBlockPos = player.getSpawnPointPosition();
+            float myF = player.getSpawnAngle();
+            boolean myBl = player.isSpawnPointSet();
+            RegistryKey<World> originalServerWorldRegistryKey = player.getSpawnPointDimension();
+            ServerWorld originalSpawnPoint = this.server.getWorld(originalServerWorldRegistryKey);
+            Optional<Vec3d> originalSpawnPosition;
+            if (myBlockPos != null) {
+                originalSpawnPosition = PlayerEntity.findRespawnPosition(originalSpawnPoint, myBlockPos, myF, myBl, true);
+            } else {
+                originalSpawnPosition = Optional.empty();
             }
 
-            while(!overriddenSpawnPointWorld.isSpaceEmpty(serverPlayerEntity) && serverPlayerEntity.getY() < (double)overriddenSpawnPointWorld.getTopY()) {
-                serverPlayerEntity.setPosition(serverPlayerEntity.getX(), serverPlayerEntity.getY() + 1.0D, serverPlayerEntity.getZ());
+            // Override vanilla respawning behavior if:
+            // no respawn position
+            // or spawn position is obstructed (respawn anchor empty, bed destroyed, ...)
+            boolean shouldOverrideVanilla = originalSpawnPosition.isEmpty();
+            if (shouldOverrideVanilla) {
+                this.players.remove(player);
+                player.getServerWorld().removePlayer(player, Entity.RemovalReason.DISCARDED);
+
+                ServerWorld overriddenSpawnPointWorld = this.server.getWorld(GlobalSpawnManager.getGlobalRespawnPoint().getSpawnDimension());
+
+                ServerPlayerEntity serverPlayerEntity = new ServerPlayerEntity(this.server, overriddenSpawnPointWorld, player.getGameProfile());
+                serverPlayerEntity.networkHandler = player.networkHandler;
+                serverPlayerEntity.copyFrom(player, alive);
+                serverPlayerEntity.setId(player.getId());
+                serverPlayerEntity.setMainArm(player.getMainArm());
+
+                for (String scoreBoardTag : player.getScoreboardTags()) {
+                    serverPlayerEntity.addScoreboardTag(scoreBoardTag);
+                }
+
+                while (!overriddenSpawnPointWorld.isSpaceEmpty(serverPlayerEntity) && serverPlayerEntity.getY() < (double) overriddenSpawnPointWorld.getTopY()) {
+                    serverPlayerEntity.setPosition(serverPlayerEntity.getX(), serverPlayerEntity.getY() + 1.0D, serverPlayerEntity.getZ());
+                }
+
+                WorldProperties worldProperties = serverPlayerEntity.world.getLevelProperties();
+                serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.getDimension(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getServerWorld().getSeed()), serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getServerWorld().isDebugWorld(), serverPlayerEntity.getServerWorld().isFlat(), alive));
+                serverPlayerEntity.networkHandler.requestTeleport(serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), serverPlayerEntity.getYaw(), serverPlayerEntity.getPitch());
+                serverPlayerEntity.networkHandler.sendPacket(new PlayerSpawnPositionS2CPacket(overriddenSpawnPointWorld.getSpawnPos(), overriddenSpawnPointWorld.getSpawnAngle()));
+                serverPlayerEntity.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
+                serverPlayerEntity.networkHandler.sendPacket(new ExperienceBarUpdateS2CPacket(serverPlayerEntity.experienceProgress, serverPlayerEntity.totalExperience, serverPlayerEntity.experienceLevel));
+
+                ((PlayerManager) (Object) this).sendWorldInfo(serverPlayerEntity, overriddenSpawnPointWorld);
+                ((PlayerManager) (Object) this).sendCommandTree(serverPlayerEntity);
+
+                overriddenSpawnPointWorld.onPlayerRespawned(serverPlayerEntity);
+                this.players.add(serverPlayerEntity);
+                this.playerMap.put(serverPlayerEntity.getUuid(), serverPlayerEntity);
+                serverPlayerEntity.onSpawn();
+                serverPlayerEntity.setHealth(serverPlayerEntity.getHealth());
+
+                callbackInfoReturnable.setReturnValue(serverPlayerEntity);
             }
-
-            WorldProperties worldProperties = serverPlayerEntity.world.getLevelProperties();
-            serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.getDimension(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getServerWorld().getSeed()), serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getServerWorld().isDebugWorld(), serverPlayerEntity.getServerWorld().isFlat(), alive));
-            serverPlayerEntity.networkHandler.requestTeleport(serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), serverPlayerEntity.getYaw(), serverPlayerEntity.getPitch());
-            serverPlayerEntity.networkHandler.sendPacket(new PlayerSpawnPositionS2CPacket(overriddenSpawnPointWorld.getSpawnPos(), overriddenSpawnPointWorld.getSpawnAngle()));
-            serverPlayerEntity.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
-            serverPlayerEntity.networkHandler.sendPacket(new ExperienceBarUpdateS2CPacket(serverPlayerEntity.experienceProgress, serverPlayerEntity.totalExperience, serverPlayerEntity.experienceLevel));
-
-            ((PlayerManager) (Object) this).sendWorldInfo(serverPlayerEntity, overriddenSpawnPointWorld);
-            ((PlayerManager) (Object) this).sendCommandTree(serverPlayerEntity);
-
-            overriddenSpawnPointWorld.onPlayerRespawned(serverPlayerEntity);
-            this.players.add(serverPlayerEntity);
-            this.playerMap.put(serverPlayerEntity.getUuid(), serverPlayerEntity);
-            serverPlayerEntity.onSpawn();
-            serverPlayerEntity.setHealth(serverPlayerEntity.getHealth());
-
-            callbackInfoReturnable.setReturnValue(serverPlayerEntity);
         }
     }
 
