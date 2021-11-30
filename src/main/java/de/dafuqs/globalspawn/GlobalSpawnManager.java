@@ -4,6 +4,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.Level;
 
 import java.util.HashMap;
 
@@ -104,7 +105,7 @@ public class GlobalSpawnManager {
             if (existsWorld(spawnPointDimension)) {
                 return true;
             } else {
-                GlobalSpawnCommon.LOGGER.warn("[GlobalSpawn] Respawn dimension " + spawnPointDimension + " is not loaded. GlobalRespawn is disabled");
+                GlobalSpawnCommon.log(Level.WARN, "Respawn dimension " + spawnPointDimension + " is not loaded. GlobalRespawn is disabled");
                 return false;
             }
         } else {
@@ -140,7 +141,7 @@ public class GlobalSpawnManager {
             if (existsWorld(spawnPointDimension)) {
                 return true;
             } else {
-                GlobalSpawnCommon.LOGGER.warn("[GlobalSpawn] Initial spawn dimension " + spawnPointDimension + " is not loaded. InitialSpawn is disabled");
+                GlobalSpawnCommon.log(Level.WARN, "Initial spawn dimension " + spawnPointDimension + " is not loaded. InitialSpawn is disabled");
                 return false;
             }
         } else {

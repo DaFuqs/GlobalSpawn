@@ -21,8 +21,6 @@ public abstract class ServerPlayerEntityMixin {
     private RegistryKey<World> spawnPointDimension;
     @Shadow
     private BlockPos spawnPointPosition;
-    @Shadow
-    private boolean spawnPointSet;
 
     /**
      * Override for ServerPlayerEntities "getSpawnPointDimension"
@@ -30,7 +28,7 @@ public abstract class ServerPlayerEntityMixin {
      */
     @Inject(method = "getSpawnPointDimension", at = @At("HEAD"), cancellable = true)
     private void getSpawnPointDimension(CallbackInfoReturnable<RegistryKey<World>> cir) {
-        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.setRespawningPlayersDataWithoutSpawnPoint(spawnPointDimension, spawnPointPosition, spawnPointSet);
+        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.setRespawningPlayersDataWithoutSpawnPoint(spawnPointDimension, spawnPointPosition, spawnPointPosition != null);
         if(globalSpawnPoint != null) {
             cir.setReturnValue(globalSpawnPoint.getSpawnDimension());
         }
@@ -42,7 +40,7 @@ public abstract class ServerPlayerEntityMixin {
      */
     @Inject(method = "getSpawnPointPosition", at = @At("HEAD"), cancellable = true)
     public void getSpawnPointPosition(CallbackInfoReturnable<BlockPos> cir) {
-        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.setRespawningPlayersDataWithoutSpawnPoint(spawnPointDimension, spawnPointPosition, spawnPointSet);
+        GlobalSpawnPoint globalSpawnPoint = GlobalSpawnMixinHandler.setRespawningPlayersDataWithoutSpawnPoint(spawnPointDimension, spawnPointPosition, spawnPointPosition != null);
         if(globalSpawnPoint != null) {
             cir.setReturnValue(globalSpawnPoint.getSpawnBlockPos());
         }

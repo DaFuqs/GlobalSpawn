@@ -20,6 +20,7 @@ import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProperties;
 import net.minecraft.world.biome.source.BiomeAccess;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -48,12 +49,12 @@ public abstract class PlayerManagerMixin {
     private Map<UUID, ServerPlayerEntity> playerMap;
 
     /**
-     * Called everytime a player connects to the server
-     * and it's profile is being loaded from disk
+     * Called everytime a player connects to the server,
+     * and its profile is being loaded from disk
      * => Change the players position as early as possible
      */
-    @Inject(method = "Lnet/minecraft/server/PlayerManager;loadPlayerData(Lnet/minecraft/server/network/ServerPlayerEntity;)Lnet/minecraft/nbt/NbtCompound;", at = @At("RETURN"), cancellable = true)
-    public void loadPlayerData(ServerPlayerEntity player, CallbackInfoReturnable<NbtCompound> cir) {
+    @Inject(method = "loadPlayerData(Lnet/minecraft/server/network/ServerPlayerEntity;)Lnet/minecraft/nbt/NbtCompound;", at = @At("RETURN"), cancellable = true)
+    public void loadPlayerData(ServerPlayerEntity player, @NotNull CallbackInfoReturnable<NbtCompound> cir) {
         NbtCompound currentCompound = cir.getReturnValue();
         if(GlobalSpawnManager.isInitialSpawnPointActive() && GlobalSpawnMixinHandler.isNewPlayer(currentCompound)) {
             currentCompound = new NbtCompound();
@@ -70,14 +71,13 @@ public abstract class PlayerManagerMixin {
     @Inject(method = "respawnPlayer", at = @At("HEAD"), cancellable = true)
     public void respawnPlayer(ServerPlayerEntity player, boolean alive, CallbackInfoReturnable<ServerPlayerEntity> callbackInfoReturnable) {
         if(GlobalSpawnManager.isGlobalRespawnPointActive()) {
-            BlockPos myBlockPos = player.getSpawnPointPosition();
-            float myF = player.getSpawnAngle();
-            boolean myBl = player.isSpawnPointSet();
+            BlockPos spawnPointBlockPos = player.getSpawnPointPosition();
+            float spawnAngle = player.getSpawnAngle();
             RegistryKey<World> originalServerWorldRegistryKey = player.getSpawnPointDimension();
             ServerWorld originalSpawnPoint = this.server.getWorld(originalServerWorldRegistryKey);
             Optional<Vec3d> originalSpawnPosition;
-            if (myBlockPos != null) {
-                originalSpawnPosition = PlayerEntity.findRespawnPosition(originalSpawnPoint, myBlockPos, myF, myBl, true);
+            if (spawnPointBlockPos != null) {
+                originalSpawnPosition = PlayerEntity.findRespawnPosition(originalSpawnPoint, spawnPointBlockPos, spawnAngle, true, true);
             } else {
                 originalSpawnPosition = Optional.empty();
             }
@@ -88,7 +88,7 @@ public abstract class PlayerManagerMixin {
             boolean shouldOverrideVanilla = originalSpawnPosition.isEmpty();
             if (shouldOverrideVanilla) {
                 this.players.remove(player);
-                player.getServerWorld().removePlayer(player, Entity.RemovalReason.DISCARDED);
+                player.getWorld().removePlayer(player, Entity.RemovalReason.DISCARDED);
 
                 ServerWorld overriddenSpawnPointWorld = this.server.getWorld(GlobalSpawnManager.getGlobalRespawnPoint().getSpawnDimension());
 
@@ -107,7 +107,7 @@ public abstract class PlayerManagerMixin {
                 }
 
                 WorldProperties worldProperties = serverPlayerEntity.world.getLevelProperties();
-                serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.getDimension(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getServerWorld().getSeed()), serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getServerWorld().isDebugWorld(), serverPlayerEntity.getServerWorld().isFlat(), alive));
+                serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.getDimension(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getWorld().getSeed()), serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getWorld().isDebugWorld(), serverPlayerEntity.getWorld().isFlat(), alive));
                 serverPlayerEntity.networkHandler.requestTeleport(serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), serverPlayerEntity.getYaw(), serverPlayerEntity.getPitch());
                 serverPlayerEntity.networkHandler.sendPacket(new PlayerSpawnPositionS2CPacket(overriddenSpawnPointWorld.getSpawnPos(), overriddenSpawnPointWorld.getSpawnAngle()));
                 serverPlayerEntity.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
