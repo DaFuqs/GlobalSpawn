@@ -4,7 +4,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.Stats;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -103,7 +102,7 @@ public class GlobalSpawnMixinHandler {
 
     private static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
         Stat deathsStat = Stats.CUSTOM.getOrCreateStat(Stats.DEATHS);
-        Stat walkedStat = Stats.CUSTOM.getOrCreateStat(new Identifier("walk_one_cm"));
+        Stat walkedStat = Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM);
         int deaths = serverPlayerEntity.getStatHandler().getStat(deathsStat);
         int walked = serverPlayerEntity.getStatHandler().getStat(walkedStat);
         return deaths == 0 && walked == 0;
