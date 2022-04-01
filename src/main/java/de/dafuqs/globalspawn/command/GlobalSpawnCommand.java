@@ -1,5 +1,6 @@
 package de.dafuqs.globalspawn.command;
 
+import de.dafuqs.globalspawn.GlobalSpawnCommon;
 import de.dafuqs.globalspawn.GlobalSpawnManager;
 import de.dafuqs.globalspawn.GlobalSpawnPoint;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -22,7 +23,7 @@ public class GlobalSpawnCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(CommandManager.literal("globalspawnpoint")
-                    .requires((source) -> source.hasPermissionLevel(0))
+                    .requires((source) -> source.hasPermissionLevel(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.commandPermissionLevel))
                     .executes((commandContext) -> {
                         return GlobalSpawnCommand.executeGlobalRespawnPoint(commandContext.getSource(), GlobalSpawnCommand.Action.QUERY, null, null);
                     })

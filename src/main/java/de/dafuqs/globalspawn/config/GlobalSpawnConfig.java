@@ -6,6 +6,7 @@ import me.shedaniel.autoconfig.annotation.Config;
 @Config(name = "GlobalSpawn")
 public class GlobalSpawnConfig implements ConfigData {
 
+    public int commandPermissionLevel = 2;
     public boolean alwaysSpawnAtGlobalSpawnOnJoin = false;
 
     public boolean globalRespawnPointActive = false;
