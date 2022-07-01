@@ -15,37 +15,37 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class GlobalSpawnCommon implements ModInitializer {
-
-    public static final String MOD_ID = "globalspawn";
-    public static ConfigManager<GlobalSpawnConfig> GLOBAL_SPAWN_CONFIG_MANAGER;
-    public static GlobalSpawnConfig GLOBAL_SPAWN_CONFIG;
-    private static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-
-    public static MinecraftServer minecraftServer;
-
-    @Override
-    public void onInitialize() {
-        //Set up config
-        log(Level.INFO, "Loading config file...");
-        ConfigHolder<GlobalSpawnConfig> configHolder = AutoConfig.register(GlobalSpawnConfig.class, JanksonConfigSerializer::new);
-        GLOBAL_SPAWN_CONFIG_MANAGER = ((ConfigManager<GlobalSpawnConfig>) configHolder);
-        GLOBAL_SPAWN_CONFIG = AutoConfig.getConfigHolder(GlobalSpawnConfig.class).getConfig();
-        
-        log(Level.INFO, "Registering Spawn Override...");
-        GlobalSpawnCommand.register();
-        InitialSpawnCommand.register();
-        GlobalSpawnManager.initialize();
-
-        ServerWorldEvents.LOAD.register((server, world) -> {
-            GlobalSpawnCommon.minecraftServer = server;
-            GlobalSpawnManager.addWorld(world);
-        });
-    
-        log(Level.INFO, "Startup finished.");
-    }
-    
-    public static void log(Level logLevel, String message) {
-        LOGGER.log(logLevel, "[GlobalSpawn] " + message);
-    }
-
+	
+	public static final String MOD_ID = "globalspawn";
+	public static ConfigManager<GlobalSpawnConfig> GLOBAL_SPAWN_CONFIG_MANAGER;
+	public static GlobalSpawnConfig GLOBAL_SPAWN_CONFIG;
+	private static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+	
+	public static MinecraftServer minecraftServer;
+	
+	@Override
+	public void onInitialize() {
+		//Set up config
+		log(Level.INFO, "Loading config file...");
+		ConfigHolder<GlobalSpawnConfig> configHolder = AutoConfig.register(GlobalSpawnConfig.class, JanksonConfigSerializer::new);
+		GLOBAL_SPAWN_CONFIG_MANAGER = ((ConfigManager<GlobalSpawnConfig>) configHolder);
+		GLOBAL_SPAWN_CONFIG = AutoConfig.getConfigHolder(GlobalSpawnConfig.class).getConfig();
+		
+		log(Level.INFO, "Registering Spawn Override...");
+		GlobalSpawnCommand.register();
+		InitialSpawnCommand.register();
+		GlobalSpawnManager.initialize();
+		
+		ServerWorldEvents.LOAD.register((server, world) -> {
+			GlobalSpawnCommon.minecraftServer = server;
+			GlobalSpawnManager.addWorld(world);
+		});
+		
+		log(Level.INFO, "Startup finished.");
+	}
+	
+	public static void log(Level logLevel, String message) {
+		LOGGER.log(logLevel, "[GlobalSpawn] " + message);
+	}
+	
 }
