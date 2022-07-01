@@ -92,7 +92,7 @@ public abstract class PlayerManagerMixin {
 				
 				ServerWorld overriddenSpawnPointWorld = this.server.getWorld(GlobalSpawnManager.getGlobalRespawnPoint().getSpawnDimension());
 				
-				ServerPlayerEntity serverPlayerEntity = new ServerPlayerEntity(this.server, overriddenSpawnPointWorld, player.getGameProfile());
+				ServerPlayerEntity serverPlayerEntity = new ServerPlayerEntity(this.server, overriddenSpawnPointWorld, player.getGameProfile(), player.getPublicKey());
 				serverPlayerEntity.networkHandler = player.networkHandler;
 				serverPlayerEntity.copyFrom(player, alive);
 				serverPlayerEntity.setId(player.getId());
@@ -107,7 +107,7 @@ public abstract class PlayerManagerMixin {
 				}
 				
 				WorldProperties worldProperties = serverPlayerEntity.world.getLevelProperties();
-				serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.method_40134(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getWorld().getSeed()), serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getWorld().isDebugWorld(), serverPlayerEntity.getWorld().isFlat(), alive));
+				serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.getDimensionKey(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getWorld().getSeed()), serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getWorld().isDebugWorld(), serverPlayerEntity.getWorld().isFlat(), alive, serverPlayerEntity.getLastDeathPos()));
 				serverPlayerEntity.networkHandler.requestTeleport(serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), serverPlayerEntity.getYaw(), serverPlayerEntity.getPitch());
 				serverPlayerEntity.networkHandler.sendPacket(new PlayerSpawnPositionS2CPacket(overriddenSpawnPointWorld.getSpawnPos(), overriddenSpawnPointWorld.getSpawnAngle()));
 				serverPlayerEntity.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
