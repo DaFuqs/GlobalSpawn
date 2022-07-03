@@ -56,7 +56,7 @@ public abstract class PlayerManagerMixin {
 	@Inject(method = "loadPlayerData(Lnet/minecraft/server/network/ServerPlayerEntity;)Lnet/minecraft/nbt/NbtCompound;", at = @At("RETURN"), cancellable = true)
 	public void loadPlayerData(ServerPlayerEntity player, @NotNull CallbackInfoReturnable<NbtCompound> cir) {
 		NbtCompound currentCompound = cir.getReturnValue();
-		if (GlobalSpawnManager.isInitialSpawnPointActive() && GlobalSpawnMixinHandler.isNewPlayer(currentCompound)) {
+		if (GlobalSpawnManager.isInitialSpawnPointActive() && GlobalSpawnMixinHandler.isNewPlayer(player)) {
 			currentCompound = new NbtCompound();
 			GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForNewPlayer(currentCompound);
 			player.readNbt(currentCompound);

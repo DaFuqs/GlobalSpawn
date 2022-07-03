@@ -101,16 +101,12 @@ public class GlobalSpawnMixinHandler {
 		return false;
 	}
 	
-	private static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
+	public static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
 		Stat deathsStat = Stats.CUSTOM.getOrCreateStat(Stats.DEATHS);
 		Stat walkedStat = Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM);
 		int deaths = serverPlayerEntity.getStatHandler().getStat(deathsStat);
 		int walked = serverPlayerEntity.getStatHandler().getStat(walkedStat);
 		return deaths == 0 && walked == 0;
-	}
-	
-	public static boolean isNewPlayer(NbtCompound nbtCompound) {
-		return nbtCompound == null;
 	}
 	
 }

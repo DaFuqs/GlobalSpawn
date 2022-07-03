@@ -58,7 +58,6 @@ public abstract class ServerPlayerEntityMixin {
 	private void moveToSpawn(ServerWorld world, CallbackInfo callbackInfo) {
 		boolean set = GlobalSpawnMixinHandler.movePlayerToSpawn((ServerPlayerEntity) (Object) this);
 		if (set) {
-			((ServerPlayerEntity) (Object) this).refreshPositionAndAngles(((ServerPlayerEntity) (Object) this).getBlockPos(), 0.0F, 0.0F);
 			callbackInfo.cancel();
 		}
 	}
