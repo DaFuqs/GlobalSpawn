@@ -5,45 +5,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stat;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
 
 public class GlobalSpawnMixinHandler {
-	
-	/**
-	 * Handles checks for getRespawnDimension and getRespawnPosition
-	 * <p>
-	 * Defaults (vanilla):
-	 * Spawn Point never set: Dimension = Overworld
-	 * Position  = null
-	 * <p>
-	 * Respawn Anchor used:   Dimension = Nether
-	 * Position  = Position of Anchor (can be broken in the meantime / empty!)
-	 *
-	 * @param playerSpawnPointDimension The ServerPlayerEntities property "spawnPointPosition" (can be null if never set)
-	 * @param playerSpawnPointPosition  The ServerPlayerEntities property "spawnPointDimension". Always set (default is OVERWORLD)
-	 * @param hasPlayerSpawnPointSet    The ServerPlayerEntities property "spawnPointSet". IS ONLY TRUE WHEN THE SPAWN POINT IS SET VIA COMMAND. The respawn anchor sets it to false!
-	 * @return The new spawn point
-	 */
-	public static GlobalSpawnPoint setRespawningPlayersDataWithoutSpawnPoint(RegistryKey<World> playerSpawnPointDimension, BlockPos playerSpawnPointPosition, boolean hasPlayerSpawnPointSet) {
-		if (GlobalSpawnManager.isGlobalRespawnPointActive()) {
-			// player has spawn point set via /spawnPoint command => don't handle that one
-			if (hasPlayerSpawnPointSet && playerSpawnPointPosition != null) {
-				// spawn point command used => vanilla behavior
-				return null;
-			} else if (playerSpawnPointPosition == null) {
-				// no spawn set => use global
-				return GlobalSpawnManager.getGlobalRespawnPoint();
-			} else {
-				// vanilla spawn set => try...
-				// if bed obstructed / respawn anchor empty etc: we have to catch it later
-				return null;
-			}
-		} else {
-			//inactive => vanilla behavior
-			return null;
-		}
-	}
 	
 	/**
 	 * Sets compound tags for the spawn position of new players
