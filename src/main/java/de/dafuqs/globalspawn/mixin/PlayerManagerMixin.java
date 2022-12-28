@@ -10,13 +10,13 @@ import net.minecraft.network.packet.s2c.play.DifficultyS2CPacket;
 import net.minecraft.network.packet.s2c.play.ExperienceBarUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnPositionS2CPacket;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProperties;
 import net.minecraft.world.biome.source.BiomeAccess;
@@ -40,13 +40,9 @@ public abstract class PlayerManagerMixin {
 	@Final
 	private MinecraftServer server;
 	
-	@Shadow
-	@Final
-	private List<ServerPlayerEntity> players;
+	@Shadow @Final private List<ServerPlayerEntity> players;
 	
-	@Shadow
-	@Final
-	private Map<UUID, ServerPlayerEntity> playerMap;
+	@Shadow @Final private Map<UUID, ServerPlayerEntity> playerMap;
 	
 	/**
 	 * Called everytime a player connects to the server,
@@ -68,6 +64,7 @@ public abstract class PlayerManagerMixin {
 		}
 	}
 	
+	// this should get a serious cleanup some time
 	@Inject(method = "respawnPlayer", at = @At("HEAD"), cancellable = true)
 	public void respawnPlayer(ServerPlayerEntity player, boolean alive, CallbackInfoReturnable<ServerPlayerEntity> callbackInfoReturnable) {
 		if (GlobalSpawnManager.isGlobalRespawnPointActive()) {
@@ -92,7 +89,7 @@ public abstract class PlayerManagerMixin {
 				
 				ServerWorld overriddenSpawnPointWorld = this.server.getWorld(GlobalSpawnManager.getGlobalRespawnPoint().getSpawnDimension());
 				
-				ServerPlayerEntity serverPlayerEntity = new ServerPlayerEntity(this.server, overriddenSpawnPointWorld, player.getGameProfile(), player.getPublicKey());
+				ServerPlayerEntity serverPlayerEntity = new ServerPlayerEntity(this.server, overriddenSpawnPointWorld, player.getGameProfile());
 				serverPlayerEntity.networkHandler = player.networkHandler;
 				serverPlayerEntity.copyFrom(player, alive);
 				serverPlayerEntity.setId(player.getId());
@@ -107,7 +104,9 @@ public abstract class PlayerManagerMixin {
 				}
 				
 				WorldProperties worldProperties = serverPlayerEntity.world.getLevelProperties();
-				serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.getDimensionKey(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getWorld().getSeed()), serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getWorld().isDebugWorld(), serverPlayerEntity.getWorld().isFlat(), alive, serverPlayerEntity.getLastDeathPos()));
+				serverPlayerEntity.networkHandler.sendPacket(new PlayerRespawnS2CPacket(serverPlayerEntity.world.getDimensionKey(), serverPlayerEntity.world.getRegistryKey(), BiomeAccess.hashSeed(serverPlayerEntity.getWorld().getSeed()),
+						serverPlayerEntity.interactionManager.getGameMode(), serverPlayerEntity.interactionManager.getPreviousGameMode(), serverPlayerEntity.getWorld().isDebugWorld(),
+						serverPlayerEntity.getWorld().isFlat(), alive ? (byte) 1 : 0, serverPlayerEntity.getLastDeathPos()));
 				serverPlayerEntity.networkHandler.requestTeleport(serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), serverPlayerEntity.getYaw(), serverPlayerEntity.getPitch());
 				serverPlayerEntity.networkHandler.sendPacket(new PlayerSpawnPositionS2CPacket(overriddenSpawnPointWorld.getSpawnPos(), overriddenSpawnPointWorld.getSpawnAngle()));
 				serverPlayerEntity.networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
