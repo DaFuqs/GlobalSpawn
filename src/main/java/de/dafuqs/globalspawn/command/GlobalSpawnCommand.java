@@ -14,51 +14,45 @@ import net.minecraft.world.World;
 
 public class GlobalSpawnCommand {
 	
-	enum Action {
-		QUERY,
-		SET,
-		UNSET
-	}
-	
 	public static void register() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(CommandManager.literal("globalspawnpoint")
 				.requires((source) -> source.hasPermissionLevel(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.commandPermissionLevel))
 				.executes((commandContext) -> {
-					return GlobalSpawnCommand.executeGlobalRespawnPoint(commandContext.getSource(), GlobalSpawnCommand.Action.QUERY, null, null);
+					return GlobalSpawnCommand.executeQuery(commandContext.getSource());
 				})
 				.then(CommandManager.literal("query").executes((commandContext) -> {
-					return GlobalSpawnCommand.executeGlobalRespawnPoint(commandContext.getSource(), GlobalSpawnCommand.Action.QUERY, null, null);
+					return GlobalSpawnCommand.executeQuery(commandContext.getSource());
 				})).then(CommandManager.literal("unset").executes((commandContext) -> {
-					return GlobalSpawnCommand.executeGlobalRespawnPoint(commandContext.getSource(), GlobalSpawnCommand.Action.UNSET, null, null);
+					return GlobalSpawnCommand.executeUnset(commandContext.getSource());
 				})).then(CommandManager.literal("set").executes((commandContext) -> {
-					return GlobalSpawnCommand.executeGlobalRespawnPoint(commandContext.getSource(), GlobalSpawnCommand.Action.SET, commandContext.getSource().getWorld(), new BlockPos((commandContext.getSource()).getPosition()));
+					return GlobalSpawnCommand.executeSet(commandContext.getSource(), commandContext.getSource().getWorld(), BlockPos.ofFloored((commandContext.getSource()).getPosition()), commandContext.getSource().getRotation().y);
 				}))));
 	}
 	
-	static int executeGlobalRespawnPoint(ServerCommandSource source, Action action, ServerWorld serverWorld, BlockPos blockPos) {
-		GlobalSpawnPoint globalSpawnPoint;
-		switch (action) {
-			case QUERY -> {
-				globalSpawnPoint = GlobalSpawnManager.getGlobalRespawnPoint();
-				if (globalSpawnPoint == null) {
-					source.sendFeedback(Text.translatable("commands.globalspawn.globalspawnpoint.query_not_set"), false);
-				} else {
-					BlockPos spawnBlockPos = globalSpawnPoint.getSpawnBlockPos();
-					RegistryKey<World> spawnWorld = globalSpawnPoint.getSpawnDimension();
-					
-					source.sendFeedback(Text.translatable("commands.globalspawn.globalspawnpoint.query_set_at", spawnWorld.getValue(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ()), false);
-				}
-			}
-			case SET -> {
-				globalSpawnPoint = new GlobalSpawnPoint(serverWorld.getRegistryKey(), blockPos);
-				GlobalSpawnManager.setRespawnPoint(globalSpawnPoint);
-				source.sendFeedback(Text.translatable("commands.globalspawn.globalspawnpoint.set_to", serverWorld.getRegistryKey().getValue(), blockPos.getX(), blockPos.getY(), blockPos.getZ()), true);
-			}
-			case UNSET -> {
-				GlobalSpawnManager.unsetRespawnPoint();
-				source.sendFeedback(Text.translatable("commands.globalspawn.globalspawnpoint.unset"), true);
-			}
+	static int executeQuery(ServerCommandSource source) {
+		GlobalSpawnPoint globalSpawnPoint = GlobalSpawnManager.getGlobalRespawnPoint();
+		if (globalSpawnPoint == null) {
+			source.sendFeedback(() -> Text.translatable("commands.globalspawn.globalspawnpoint.query_not_set"), false);
+		} else {
+			BlockPos spawnBlockPos = globalSpawnPoint.getPos();
+			RegistryKey<World> spawnWorld = globalSpawnPoint.getDimension();
+			float angle = globalSpawnPoint.getAngle();
+			
+			source.sendFeedback(() -> Text.translatable("commands.globalspawn.globalspawnpoint.query_set_at", spawnWorld.getValue(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ(), angle), false);
 		}
+		return 1;
+	}
+	
+	static int executeSet(ServerCommandSource source, ServerWorld serverWorld, BlockPos blockPos, float angle) {
+		GlobalSpawnPoint globalSpawnPoint = new GlobalSpawnPoint(serverWorld.getRegistryKey(), blockPos, angle);
+		GlobalSpawnManager.setGlobalSpawnPoint(globalSpawnPoint);
+		source.sendFeedback(() -> Text.translatable("commands.globalspawn.globalspawnpoint.set_to", serverWorld.getRegistryKey().getValue(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), angle), true);
+		return 1;
+	}
+	
+	static int executeUnset(ServerCommandSource source) {
+		GlobalSpawnManager.unsetGlobalSpawnPoint();
+		source.sendFeedback(() -> Text.translatable("commands.globalspawn.globalspawnpoint.unset"), true);
 		return 1;
 	}
 	

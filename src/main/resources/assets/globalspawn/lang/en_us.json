@@ -1,26 +1,29 @@
 {
-  "commands.globalspawn.globalspawnpoint.query_set_at": "Global spawn is set in dimension %s at x:%d y:%d z:%d.",
+  "commands.globalspawn.globalspawnpoint.query_set_at": "Global spawn is set in dimension %s at x:%d y:%d z:%d with angle %d.",
   "commands.globalspawn.globalspawnpoint.query_not_set": "Global spawn is not set.",
-  "commands.globalspawn.globalspawnpoint.set_to": "Set global spawn in dimension %s at x:%d y:%d z:%d.",
+  "commands.globalspawn.globalspawnpoint.set_to": "Set global spawn in dimension %s at x:%d y:%d z:%d with angle %d.",
   "commands.globalspawn.globalspawnpoint.unset": "Global spawn removed.",
 
-  "commands.globalspawn.initialspawnpoint.query_set_at": "Initial spawn is set in dimension %s at x:%d y:%d z:%d.",
+  "commands.globalspawn.initialspawnpoint.query_set_at": "Initial spawn is set in dimension %s at x:%d y:%d z:%d with angle %d.",
   "commands.globalspawn.initialspawnpoint.query_not_set": "Initial spawn is not set.",
-  "commands.globalspawn.initialspawnpoint.set_to": "Set initial spawn in dimension %s at x:%d y:%d z:%d.",
+  "commands.globalspawn.initialspawnpoint.set_to": "Set initial spawn in dimension %s at x:%d y:%d z:%d with angle %d.",
   "commands.globalspawn.initialspawnpoint.unset": "Initial spawn removed.",
 
+  "text.autoconfig.GlobalSpawn.title": "Global Spawn",
   "text.autoconfig.GlobalSpawn.option.alwaysSpawnAtGlobalSpawnOnJoin": "Always spawn on the active global respawn point when joining the world",
   "text.autoconfig.GlobalSpawn.option.commandPermissionLevel": "Permission Level for Commands",
 
-  "text.autoconfig.GlobalSpawn.option.globalRespawnPointActive": "Global Respawn Active (Override vanilla respawn point)",
+  "text.autoconfig.GlobalSpawn.option.globalRespawnPointActive": "Global Respawn Active (overrides vanilla respawn point)",
   "text.autoconfig.GlobalSpawn.option.globalRespawnDimension": "Respawn Dimension",
   "text.autoconfig.GlobalSpawn.option.globalRespawnPositionX": "Respawn X coordinate",
   "text.autoconfig.GlobalSpawn.option.globalRespawnPositionY": "Respawn Y coordinate",
   "text.autoconfig.GlobalSpawn.option.globalRespawnPositionZ": "Respawn Z coordinate",
+  "text.autoconfig.GlobalSpawn.option.globalRespawnAngle": "Respawn Angle",
 
   "text.autoconfig.GlobalSpawn.option.initialSpawnPointActive": "Initial Spawn Active (on first spawn of players)",
   "text.autoconfig.GlobalSpawn.option.initialSpawnPointDimension": "First spawn Dimension",
   "text.autoconfig.GlobalSpawn.option.initialSpawnPositionX": "First spawn X coordinate",
   "text.autoconfig.GlobalSpawn.option.initialSpawnPositionY": "First spawn Y coordinate",
-  "text.autoconfig.GlobalSpawn.option.initialSpawnPositionZ": "First spawn Z coordinate"
+  "text.autoconfig.GlobalSpawn.option.initialSpawnPositionZ": "First spawn Z coordinate",
+  "text.autoconfig.GlobalSpawn.option.initialSpawnAngle": "First spawn Angle"
 }

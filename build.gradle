@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.0-SNAPSHOT'
+	id 'fabric-loom' version '1.2-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -11,8 +11,9 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven { url "https://maven.shedaniel.me/" }
-	maven { url "https://maven.terraformersmc.com/" }
+	maven { url "https://maven.shedaniel.me/" } // cloth config
+	maven { url "https://maven.terraformersmc.com/" } // mod menu
+	maven { url 'https://jitpack.io' } // mixin extras
 }
 
 dependencies {
@@ -27,6 +28,9 @@ dependencies {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 	modApi("com.terraformersmc:modmenu:${project.modmenu_version}")
+
+	implementation include("com.github.LlamaLad7:MixinExtras:${project.mixin_extras_version}")
+	annotationProcessor("com.github.LlamaLad7:MixinExtras:${project.mixin_extras_version}")
 }
 
 processResources {

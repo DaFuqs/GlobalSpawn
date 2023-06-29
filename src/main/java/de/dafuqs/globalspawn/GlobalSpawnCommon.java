@@ -1,18 +1,12 @@
 package de.dafuqs.globalspawn;
 
-import de.dafuqs.globalspawn.command.GlobalSpawnCommand;
-import de.dafuqs.globalspawn.command.InitialSpawnCommand;
-import de.dafuqs.globalspawn.config.GlobalSpawnConfig;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.ConfigHolder;
-import me.shedaniel.autoconfig.ConfigManager;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.minecraft.server.MinecraftServer;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import de.dafuqs.globalspawn.command.*;
+import de.dafuqs.globalspawn.config.*;
+import me.shedaniel.autoconfig.*;
+import me.shedaniel.autoconfig.serializer.*;
+import net.fabricmc.api.*;
+import net.fabricmc.fabric.api.event.lifecycle.v1.*;
+import org.apache.logging.log4j.*;
 
 public class GlobalSpawnCommon implements ModInitializer {
 	
@@ -20,8 +14,6 @@ public class GlobalSpawnCommon implements ModInitializer {
 	public static ConfigManager<GlobalSpawnConfig> GLOBAL_SPAWN_CONFIG_MANAGER;
 	public static GlobalSpawnConfig GLOBAL_SPAWN_CONFIG;
 	private static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-	
-	public static MinecraftServer minecraftServer;
 	
 	@Override
 	public void onInitialize() {
@@ -34,12 +26,8 @@ public class GlobalSpawnCommon implements ModInitializer {
 		log(Level.INFO, "Registering Spawn Override...");
 		GlobalSpawnCommand.register();
 		InitialSpawnCommand.register();
-		GlobalSpawnManager.initialize();
 		
-		ServerWorldEvents.LOAD.register((server, world) -> {
-			GlobalSpawnCommon.minecraftServer = server;
-			GlobalSpawnManager.addWorld(world);
-		});
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> GlobalSpawnManager.initialize(server));
 		
 		log(Level.INFO, "Startup finished.");
 	}

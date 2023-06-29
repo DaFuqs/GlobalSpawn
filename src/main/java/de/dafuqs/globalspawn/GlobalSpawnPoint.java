@@ -1,49 +1,50 @@
 package de.dafuqs.globalspawn;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtDouble;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.nbt.*;
+import net.minecraft.registry.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
+import org.jetbrains.annotations.*;
 
 public class GlobalSpawnPoint {
 	
-	private final RegistryKey<World> spawnPointDimension;
-	private final BlockPos spawnPointPosition;
+	private final RegistryKey<World> dimension;
+	private final BlockPos position;
+	private final float angle;
 	
-	public GlobalSpawnPoint(RegistryKey<World> spawnPointDimension, BlockPos spawnPointPosition) {
-		this.spawnPointDimension = spawnPointDimension;
-		this.spawnPointPosition = spawnPointPosition;
+	public GlobalSpawnPoint(RegistryKey<World> spawnPointDimension, BlockPos position, float angle) {
+		this.dimension = spawnPointDimension;
+		this.position = position;
+		this.angle = angle;
 	}
 	
-	public NbtCompound getSpawnNbtCompound(NbtCompound nbtCompound) {
+	public NbtCompound getSpawnNbtCompound(@Nullable NbtCompound nbtCompound) {
 		if (nbtCompound == null) {
 			nbtCompound = new NbtCompound();
 		}
 		
-		nbtCompound.putString("Dimension", spawnPointDimension.getValue().toString());
+		nbtCompound.putString("Dimension", dimension.getValue().toString());
+		nbtCompound.putFloat("SpawnAngle", angle);
 		
 		NbtList listTag = new NbtList();
-		listTag.addElement(0, NbtDouble.of(spawnPointPosition.getX() + 0.5));
-		listTag.addElement(1, NbtDouble.of(spawnPointPosition.getY()));
-		listTag.addElement(2, NbtDouble.of(spawnPointPosition.getZ() + 0.5));
-		
+		listTag.addElement(0, NbtDouble.of(position.getX() + 0.5));
+		listTag.addElement(1, NbtDouble.of(position.getY()));
+		listTag.addElement(2, NbtDouble.of(position.getZ() + 0.5));
 		nbtCompound.put("Pos", listTag);
+		
 		return nbtCompound;
 	}
 	
-	public RegistryKey<World> getSpawnDimension() {
-		return spawnPointDimension;
+	public RegistryKey<World> getDimension() {
+		return dimension;
 	}
 	
-	public Vec3d getSpawnVec3D() {
-		return new Vec3d(spawnPointPosition.getX() + 0.5, spawnPointPosition.getY(), spawnPointPosition.getZ() + 0.5);
+	public BlockPos getPos() {
+		return position;
 	}
 	
-	public BlockPos getSpawnBlockPos() {
-		return new BlockPos(spawnPointPosition.getX(), spawnPointPosition.getY(), spawnPointPosition.getZ());
+	public float getAngle() {
+		return angle;
 	}
 	
 }

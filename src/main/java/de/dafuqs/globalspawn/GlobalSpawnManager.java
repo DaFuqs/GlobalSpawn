@@ -1,114 +1,101 @@
 package de.dafuqs.globalspawn;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.apache.logging.log4j.Level;
-
-import java.util.HashMap;
+import net.minecraft.registry.*;
+import net.minecraft.server.*;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
+import org.apache.logging.log4j.*;
+import org.jetbrains.annotations.*;
 
 public class GlobalSpawnManager {
 	
-	private static final HashMap<RegistryKey<World>, World> dimensions = new HashMap<>();
-	private static boolean respawnPointActive;
-	private static GlobalSpawnPoint globalRespawnPoint;
-	
-	private static boolean initialSpawnActive;
-	private static GlobalSpawnPoint initialSpawnPoint;
+	private static @Nullable GlobalSpawnPoint globalRespawnPoint;
+	private static @Nullable GlobalSpawnPoint initialSpawnPoint;
 	
 	// GENERAL
-	public static void initialize() {
-		respawnPointActive = false;
-		initialSpawnActive = false;
-	}
-	
-	public static void addWorld(World world) {
-		dimensions.put(world.getRegistryKey(), world);
-		
-		Identifier identifier = new Identifier(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnDimension);
-		boolean shouldRespawnPointBeActive = respawnPointActive = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPointActive;
-		if (shouldRespawnPointBeActive && world.getRegistryKey().getValue().equals(identifier)) {
+	public static void initialize(MinecraftServer server) {
+		boolean shouldRespawnPointBeActive = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPointActive;
+		RegistryKey<World> globalSpawnWorldKey = RegistryKey.of(RegistryKeys.WORLD, new Identifier(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnDimension));
+		if (shouldRespawnPointBeActive && existsWorld(server, globalSpawnWorldKey)) {
 			int x = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPositionX;
 			int y = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPositionY;
 			int z = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPositionZ;
-			globalRespawnPoint = new GlobalSpawnPoint(world.getRegistryKey(), new BlockPos(x, y, z));
-			respawnPointActive = true;
+			float angle = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnAngle;
+			globalRespawnPoint = new GlobalSpawnPoint(globalSpawnWorldKey, new BlockPos(x, y, z), angle);
 		}
 		
 		boolean shouldInitialSpawnPointBeActive = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointActive;
-		identifier = new Identifier(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointDimension);
-		if (shouldInitialSpawnPointBeActive && world.getRegistryKey().getValue().equals(identifier)) {
+		RegistryKey<World> initialSpawnWorldKey = RegistryKey.of(RegistryKeys.WORLD, new Identifier(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointDimension));
+		if (shouldInitialSpawnPointBeActive && existsWorld(server, initialSpawnWorldKey)) {
 			int x = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPositionX;
 			int y = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPositionY;
 			int z = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPositionZ;
-			initialSpawnPoint = new GlobalSpawnPoint(world.getRegistryKey(), new BlockPos(x, y, z));
-			initialSpawnActive = true;
+			float angle = GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnAngle;
+			initialSpawnPoint = new GlobalSpawnPoint(initialSpawnWorldKey, new BlockPos(x, y, z), angle);
 		}
 	}
 	
-	private static boolean existsWorld(RegistryKey<World> registryKey) {
-		return dimensions.containsKey(registryKey);
+	private static boolean existsWorld(MinecraftServer server, RegistryKey<World> registryKey) {
+		return server.getWorld(registryKey) != null;
 	}
 	
 	private static void updateConfigFile() {
 		// respawn point
-		GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPointActive = respawnPointActive;
 		if (globalRespawnPoint != null) {
-			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnDimension = globalRespawnPoint.getSpawnDimension().getValue().toString();
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPointActive = true;
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnDimension = globalRespawnPoint.getDimension().getValue().toString();
 			
-			BlockPos globalRespawnPointSpawnBlockPos = globalRespawnPoint.getSpawnBlockPos();
+			BlockPos globalRespawnPointSpawnBlockPos = globalRespawnPoint.getPos();
 			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPositionX = globalRespawnPointSpawnBlockPos.getX();
 			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPositionY = globalRespawnPointSpawnBlockPos.getY();
 			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPositionZ = globalRespawnPointSpawnBlockPos.getZ();
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnAngle = globalRespawnPoint.getAngle();
+		} else {
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.globalRespawnPointActive = false;
 		}
 		
 		// initial spawn point
-		GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointActive = initialSpawnActive;
 		if (initialSpawnPoint != null) {
-			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointDimension = initialSpawnPoint.getSpawnDimension().getValue().toString();
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointActive = true;
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointDimension = initialSpawnPoint.getDimension().getValue().toString();
 			
-			BlockPos initialSpawnPointSpawnBlockPos = initialSpawnPoint.getSpawnBlockPos();
+			BlockPos initialSpawnPointSpawnBlockPos = initialSpawnPoint.getPos();
 			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPositionX = initialSpawnPointSpawnBlockPos.getX();
 			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPositionY = initialSpawnPointSpawnBlockPos.getY();
 			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPositionZ = initialSpawnPointSpawnBlockPos.getZ();
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnAngle = initialSpawnPoint.getAngle();
+		} else {
+			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointActive = false;
 		}
 		
 		GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG_MANAGER.save();
 	}
 	
 	// RESPAWN
-	public static void setRespawnPoint(GlobalSpawnPoint globalRespawnPoint) {
+	public static void setGlobalSpawnPoint(GlobalSpawnPoint globalRespawnPoint) {
 		GlobalSpawnManager.globalRespawnPoint = globalRespawnPoint;
-		respawnPointActive = true;
 		updateConfigFile();
 	}
 	
-	public static GlobalSpawnPoint getGlobalRespawnPoint() {
-		if (respawnPointActive) {
-			return globalRespawnPoint;
-		} else {
-			return null;
-		}
+	public static @Nullable GlobalSpawnPoint getGlobalRespawnPoint() {
+		return globalRespawnPoint;
 	}
 	
-	public static void unsetRespawnPoint() {
+	public static void unsetGlobalSpawnPoint() {
 		globalRespawnPoint = null;
-		respawnPointActive = false;
 		updateConfigFile();
 	}
 	
-	public static boolean isGlobalRespawnPointActive() {
-		if (respawnPointActive && globalRespawnPoint != null) {
-			RegistryKey<World> spawnPointDimension = globalRespawnPoint.getSpawnDimension();
-			
-			if (existsWorld(spawnPointDimension)) {
-				return true;
-			} else {
-				GlobalSpawnCommon.log(Level.WARN, "Respawn dimension " + spawnPointDimension + " is not loaded. GlobalRespawn is disabled");
-				return false;
-			}
+	public static boolean isGlobalSpawnPointActive(MinecraftServer server) {
+		if (globalRespawnPoint == null) {
+			return false;
+		}
+		
+		if (existsWorld(server, globalRespawnPoint.getDimension())) {
+			return true;
 		} else {
+			GlobalSpawnCommon.log(Level.WARN, "Respawn dimension " + globalRespawnPoint.getDimension() + " is not loaded. GlobalRespawn is disabled");
 			return false;
 		}
 	}
@@ -116,35 +103,27 @@ public class GlobalSpawnManager {
 	// INITIAL SPAWN
 	public static void setInitialSpawnPoint(GlobalSpawnPoint initialSpawnPoint) {
 		GlobalSpawnManager.initialSpawnPoint = initialSpawnPoint;
-		initialSpawnActive = true;
 		updateConfigFile();
 	}
 	
-	public static GlobalSpawnPoint getInitialSpawnPoint() {
-		if (initialSpawnActive) {
-			return initialSpawnPoint;
-		} else {
-			return null;
-		}
+	public static @Nullable GlobalSpawnPoint getInitialSpawnPoint() {
+		return initialSpawnPoint;
 	}
 	
 	public static void unsetInitialSpawnPoint() {
 		initialSpawnPoint = null;
-		initialSpawnActive = false;
 		updateConfigFile();
 	}
 	
-	public static boolean isInitialSpawnPointActive() {
-		if (initialSpawnActive && initialSpawnPoint != null) {
-			RegistryKey<World> spawnPointDimension = initialSpawnPoint.getSpawnDimension();
-			
-			if (existsWorld(spawnPointDimension)) {
-				return true;
-			} else {
-				GlobalSpawnCommon.log(Level.WARN, "Initial spawn dimension " + spawnPointDimension + " is not loaded. InitialSpawn is disabled");
-				return false;
-			}
+	public static boolean isInitialSpawnPointActive(MinecraftServer server) {
+		if (initialSpawnPoint == null) {
+			return false;
+		}
+		
+		if (existsWorld(server, initialSpawnPoint.getDimension())) {
+			return true;
 		} else {
+			GlobalSpawnCommon.log(Level.WARN, "Initial spawn dimension " + initialSpawnPoint.getDimension() + " is not loaded. InitialSpawn is disabled");
 			return false;
 		}
 	}

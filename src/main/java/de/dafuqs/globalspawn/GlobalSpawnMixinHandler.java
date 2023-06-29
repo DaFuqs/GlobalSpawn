@@ -1,10 +1,10 @@
 package de.dafuqs.globalspawn;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.stat.Stat;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.nbt.*;
+import net.minecraft.server.*;
+import net.minecraft.server.network.*;
+import net.minecraft.stat.*;
+import net.minecraft.util.math.*;
 
 public class GlobalSpawnMixinHandler {
 	
@@ -16,12 +16,11 @@ public class GlobalSpawnMixinHandler {
 	 * but used to position the player in the world on spawn
 	 *
 	 * @param nbtCompound The NBTag of a connecting player
-	 * @return CompoundTag with modified spawn position and dimension
 	 */
-	public static NbtCompound modifySpawnRegistryPositionAndDimensionForNewPlayer(NbtCompound nbtCompound) {
-		if (GlobalSpawnManager.isInitialSpawnPointActive()) {
+	public static NbtCompound modifySpawnRegistryPositionAndDimensionForNewPlayer(MinecraftServer server, NbtCompound nbtCompound) {
+		if (GlobalSpawnManager.isInitialSpawnPointActive(server)) {
 			return GlobalSpawnManager.getInitialSpawnPoint().getSpawnNbtCompound(nbtCompound);
-		} else if (GlobalSpawnManager.isGlobalRespawnPointActive()) {
+		} else if (GlobalSpawnManager.isGlobalSpawnPointActive(server)) {
 			return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound(nbtCompound);
 		}
 		return nbtCompound;
@@ -36,8 +35,8 @@ public class GlobalSpawnMixinHandler {
 	 * @param nbtCompound The NBTag of a connecting player
 	 * @return CompoundTag with modified spawn position and dimension
 	 */
-	public static NbtCompound modifySpawnRegistryPositionAndDimensionForExistingPlayer(NbtCompound nbtCompound) {
-		if (GlobalSpawnManager.isGlobalRespawnPointActive()) {
+	public static NbtCompound modifySpawnRegistryPositionAndDimensionForExistingPlayer(MinecraftServer server, NbtCompound nbtCompound) {
+		if (GlobalSpawnManager.isGlobalSpawnPointActive(server)) {
 			return GlobalSpawnManager.getGlobalRespawnPoint().getSpawnNbtCompound(nbtCompound);
 		} else {
 			return nbtCompound;
@@ -46,17 +45,16 @@ public class GlobalSpawnMixinHandler {
 	
 	/**
 	 * Moving a newly joined player to the world spawn
-	 *
 	 * @param serverPlayerEntity The player
 	 */
 	public static boolean movePlayerToSpawn(ServerPlayerEntity serverPlayerEntity) {
-		if (GlobalSpawnManager.isInitialSpawnPointActive() && isNewPlayer(serverPlayerEntity)) {
-			BlockPos spawnBlockPos = GlobalSpawnManager.getInitialSpawnPoint().getSpawnBlockPos();
+		if (GlobalSpawnManager.isInitialSpawnPointActive(serverPlayerEntity.server) && isNewPlayer(serverPlayerEntity)) {
+			BlockPos spawnBlockPos = GlobalSpawnManager.getInitialSpawnPoint().getPos();
 			serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, 0.0F, 0.0F);
 			serverPlayerEntity.updatePosition(spawnBlockPos.getX() + 0.5F, spawnBlockPos.getY(), spawnBlockPos.getZ() + 0.5F);
 			return true;
-		} else if (GlobalSpawnManager.isGlobalRespawnPointActive()) {
-			BlockPos spawnBlockPos = GlobalSpawnManager.getGlobalRespawnPoint().getSpawnBlockPos();
+		} else if (GlobalSpawnManager.isGlobalSpawnPointActive(serverPlayerEntity.server)) {
+			BlockPos spawnBlockPos = GlobalSpawnManager.getGlobalRespawnPoint().getPos();
 			serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, 0.0F, 0.0F);
 			serverPlayerEntity.updatePosition(spawnBlockPos.getX() + 0.5F, spawnBlockPos.getY(), spawnBlockPos.getZ() + 0.5F);
 			return true;
@@ -65,11 +63,8 @@ public class GlobalSpawnMixinHandler {
 	}
 	
 	public static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
-		Stat deathsStat = Stats.CUSTOM.getOrCreateStat(Stats.DEATHS);
-		Stat walkedStat = Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM);
-		int deaths = serverPlayerEntity.getStatHandler().getStat(deathsStat);
-		int walked = serverPlayerEntity.getStatHandler().getStat(walkedStat);
-		return deaths == 0 && walked == 0;
+		return serverPlayerEntity.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)) == 0
+			&& serverPlayerEntity.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM)) == 0;
 	}
 	
 }
