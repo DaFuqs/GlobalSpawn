@@ -5,12 +5,15 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <option name="defaultObfuscationEnv" value="named:intermediary" />
-        <option name="inMapFileNamedIntermediary" value="C:\Users\domin\.gradle\caches\fabric-loom\1.20\net.fabricmc.yarn.1_20.1.20+build.1-v2\mappings.tiny" />
-        <option name="outMapFileNamedIntermediary" value="I:\FabricModding\GlobalSpawn\build\loom-cache\mixin-map-net.fabricmc.yarn.1_20.1.20+build.1-v2.main.tiny" />
+        <option name="inMapFileNamedIntermediary" value="C:\Users\domin\.gradle\caches\fabric-loom\1.20.2\net.fabricmc.yarn.1_20_2.1.20.2+build.4-v2\mappings.tiny" />
+        <option name="outMapFileNamedIntermediary" value="I:\FabricModding\GlobalSpawn\build\loom-cache\mixin-map-net.fabricmc.yarn.1_20_2.1.20.2+build.4-v2.main.tiny" />
         <option name="outRefMapFile" value="I:\FabricModding\GlobalSpawn\build\classes\java\main\globalspawn-refmap.json" />
         <option name="quiet" value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.LlamaLad7/MixinExtras/0.1.1/509f2869426473a0faec75539db756367065816d/MixinExtras-0.1.1.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.LlamaLad7/MixinExtras/0.2.0/eefd9396ead64366f9459cbd151a9480bcfaec61/MixinExtras-0.2.0.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.LlamaLad7.MixinExtras/mixinextras-common/0.2.0/a8d90ced56287dd5cb8ed286681ef505c8468454/mixinextras-common-0.2.0.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.LlamaLad7.MixinExtras/mixinextras-fabric/0.2.0/7ec4aa6a48805ef28c944c834f558c2603b29370/mixinextras-fabric-0.2.0.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.LlamaLad7.MixinExtras/mixinextras-forge/0.2.0/7c3c6202e08f64d244e98fcce8aa87dbc50ed3d3/mixinextras-forge-0.2.0.jar" />
         </processorPath>
         <module name="GlobalSpawn.main" />
       </profile>
