@@ -83,7 +83,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 		}
 	}
 	
-	@Unique
 	private boolean globalspawn$shouldOverrideRespawn() {
 		 if(!GlobalSpawnManager.isGlobalSpawnPointActive(this.server)) {
 			 return false;
