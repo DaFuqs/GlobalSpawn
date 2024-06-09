@@ -8,6 +8,8 @@ import net.minecraft.server.network.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 
+import java.util.Optional;
+
 @Mixin(PlayerManager.class)
 public abstract class PlayerManagerMixin {
 	
@@ -18,16 +20,18 @@ public abstract class PlayerManagerMixin {
 	 * and its profile is being loaded from disk
 	 * => Change the players position as early as possible
 	 */
-	@ModifyReturnValue(method = "loadPlayerData(Lnet/minecraft/server/network/ServerPlayerEntity;)Lnet/minecraft/nbt/NbtCompound;", at = @At("RETURN"))
-	public NbtCompound loadPlayerData(NbtCompound original, ServerPlayerEntity player) {
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @ModifyReturnValue(method = "loadPlayerData", at = @At("RETURN"))
+	public Optional<NbtCompound> loadPlayerData(Optional<NbtCompound> original, ServerPlayerEntity player) {
+		NbtCompound nbt = original.orElse(new NbtCompound());
 		if (GlobalSpawnManager.isInitialSpawnPointActive(this.server) && GlobalSpawnMixinHandler.isNewPlayer(player)) {
-			original = GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForNewPlayer(this.server, original);
-			player.readNbt(original);
+			nbt = GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForNewPlayer(this.server, nbt);
+			player.readNbt(nbt);
 		} else if (GlobalSpawnManager.isGlobalSpawnPointActive(this.server) && GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.alwaysSpawnAtGlobalSpawnOnJoin) {
-			original = GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForExistingPlayer(this.server, original);
-			player.readNbt(original);
+			nbt = GlobalSpawnMixinHandler.modifySpawnRegistryPositionAndDimensionForExistingPlayer(this.server, nbt);
+			player.readNbt(nbt);
 		}
-		return original;
+		return Optional.of(nbt);
 	}
 	
 }

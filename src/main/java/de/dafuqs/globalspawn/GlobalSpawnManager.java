@@ -5,7 +5,6 @@ import net.minecraft.server.*;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.*;
-import org.apache.logging.log4j.*;
 import org.jetbrains.annotations.*;
 
 public class GlobalSpawnManager {
@@ -69,7 +68,7 @@ public class GlobalSpawnManager {
 			GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.initialSpawnPointActive = false;
 		}
 		
-		GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG_MANAGER.save();
+		GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG_HOLDER.save();
 	}
 	
 	// RESPAWN
@@ -95,7 +94,7 @@ public class GlobalSpawnManager {
 		if (existsWorld(server, globalRespawnPoint.getDimension())) {
 			return true;
 		} else {
-			GlobalSpawnCommon.log(Level.WARN, "Respawn dimension " + globalRespawnPoint.getDimension() + " is not loaded. GlobalRespawn is disabled");
+            GlobalSpawnCommon.LOGGER.warn("Respawn dimension {} is not loaded. GlobalRespawn is disabled", globalRespawnPoint.getDimension());
 			return false;
 		}
 	}
@@ -123,7 +122,7 @@ public class GlobalSpawnManager {
 		if (existsWorld(server, initialSpawnPoint.getDimension())) {
 			return true;
 		} else {
-			GlobalSpawnCommon.log(Level.WARN, "Initial spawn dimension " + initialSpawnPoint.getDimension() + " is not loaded. InitialSpawn is disabled");
+            GlobalSpawnCommon.LOGGER.warn("Initial spawn dimension {} is not loaded. InitialSpawn is disabled", initialSpawnPoint.getDimension());
 			return false;
 		}
 	}

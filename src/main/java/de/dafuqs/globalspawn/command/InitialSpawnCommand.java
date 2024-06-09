@@ -17,16 +17,14 @@ public class InitialSpawnCommand {
 	public static void register() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(CommandManager.literal("initialspawnpoint")
 				.requires((source) -> source.hasPermissionLevel(GlobalSpawnCommon.GLOBAL_SPAWN_CONFIG.commandPermissionLevel))
-				.executes((commandContext) -> {
-					return InitialSpawnCommand.executeQuery(commandContext.getSource());
-				})
-				.then(CommandManager.literal("query").executes((commandContext) -> {
-					return InitialSpawnCommand.executeQuery(commandContext.getSource());
-				})).then(CommandManager.literal("unset").executes((commandContext) -> {
-					return InitialSpawnCommand.executeUnset(commandContext.getSource());
-				})).then(CommandManager.literal("set").executes((commandContext) -> {
-					return InitialSpawnCommand.executeSet(commandContext.getSource(), commandContext.getSource().getWorld(), BlockPos.ofFloored((commandContext.getSource()).getPosition()), commandContext.getSource().getRotation().y);
-				}))));
+				.executes((commandContext) -> InitialSpawnCommand.executeQuery(commandContext.getSource()))
+				.then(CommandManager.literal("query")
+						.executes((commandContext) -> InitialSpawnCommand.executeQuery(commandContext.getSource())))
+				.then(CommandManager.literal("unset")
+						.executes((commandContext) -> InitialSpawnCommand.executeUnset(commandContext.getSource())))
+				.then(CommandManager.literal("set")
+						.executes((commandContext) -> InitialSpawnCommand.executeSet(commandContext.getSource(), commandContext.getSource().getWorld(), BlockPos.ofFloored((commandContext.getSource()).getPosition()), commandContext.getSource().getRotation().y)))
+		));
 	}
 	
 	static int executeQuery(ServerCommandSource source) {
@@ -38,7 +36,7 @@ public class InitialSpawnCommand {
 			RegistryKey<World> spawnWorld = initialSpawnPoint.getDimension();
 			float angle = initialSpawnPoint.getAngle();
 			
-			source.sendFeedback(() -> Text.translatable("commands.globalspawn.initialspawnpoint.query_set_at", spawnWorld.getValue(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ(), angle), false);
+			source.sendFeedback(() -> Text.translatable("commands.globalspawn.initialspawnpoint.query_set_at", spawnWorld.getValue().toString(), spawnBlockPos.getX(), spawnBlockPos.getY(), spawnBlockPos.getZ(), angle), false);
 		}
 		return 1;
 	}
@@ -46,7 +44,7 @@ public class InitialSpawnCommand {
 	static int executeSet(ServerCommandSource source, ServerWorld serverWorld, BlockPos blockPos, float angle) {
 		GlobalSpawnPoint initialSpawnPoint = new GlobalSpawnPoint(serverWorld.getRegistryKey(), blockPos, angle);
 		GlobalSpawnManager.setInitialSpawnPoint(initialSpawnPoint);
-		source.sendFeedback(() -> Text.translatable("commands.globalspawn.initialspawnpoint.set_to", serverWorld.getRegistryKey().getValue(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), angle), true);
+		source.sendFeedback(() -> Text.translatable("commands.globalspawn.initialspawnpoint.set_to", serverWorld.getRegistryKey().getValue().toString(), blockPos.getX(), blockPos.getY(), blockPos.getZ(), angle), true);
 		return 1;
 	}
 	
