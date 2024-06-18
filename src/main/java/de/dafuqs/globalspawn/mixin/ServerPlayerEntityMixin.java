@@ -71,31 +71,18 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 		}
 	}
 	
-	/**
-	 * Called on spawn of a player
-	 * @param world        The default world
-	 * @param callbackInfo CallbackInfo
-	 */
-	@Inject(method = "moveToSpawn", at = @At("HEAD"), cancellable = true)
-	private void globalspawn$moveToSpawn(ServerWorld world, CallbackInfo callbackInfo) {
-		if (GlobalSpawnMixinHandler.movePlayerToSpawn((ServerPlayerEntity) (Object) this)) {
-			callbackInfo.cancel();
-		}
-	}
-	
 	@Unique
 	private boolean globalspawn$shouldOverrideRespawn() {
-		 if(!GlobalSpawnManager.isGlobalSpawnPointActive(this.server)) {
-			 return false;
-		 }
-			
+		if(!GlobalSpawnManager.isGlobalSpawnPointActive(this.server)) {
+			return false;
+		}
+
 		BlockPos blockPos = this.spawnPointPosition;
 		ServerWorld serverWorld = this.server.getWorld(spawnPointDimension);
 		if (serverWorld != null && blockPos != null) {
-			return PlayerEntity.findRespawnPosition(serverWorld, blockPos, this.spawnAngle, this.spawnForced, true).isEmpty();
+			return ServerPlayerEntity.findRespawnPosition(serverWorld, blockPos, this.spawnAngle, this.spawnForced, true).isEmpty();
 		} else {
 			return true;
 		}
 	}
-	
 }

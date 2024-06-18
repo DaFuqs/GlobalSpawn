@@ -17,7 +17,7 @@ public class GlobalSpawnManager {
 	// GENERAL
 	public static void initialize(MinecraftServer server) {
 		boolean shouldRespawnPointBeActive = GlobalSpawn.GLOBAL_SPAWN_CONFIG.globalRespawnPointActive;
-		RegistryKey<World> globalSpawnWorldKey = RegistryKey.of(RegistryKeys.WORLD, new Identifier(GlobalSpawn.GLOBAL_SPAWN_CONFIG.globalRespawnDimension));
+		RegistryKey<World> globalSpawnWorldKey = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(GlobalSpawn.GLOBAL_SPAWN_CONFIG.globalRespawnDimension));
 		if (shouldRespawnPointBeActive && existsWorld(server, globalSpawnWorldKey)) {
 			int x = GlobalSpawn.GLOBAL_SPAWN_CONFIG.globalRespawnPositionX;
 			int y = GlobalSpawn.GLOBAL_SPAWN_CONFIG.globalRespawnPositionY;
@@ -29,7 +29,7 @@ public class GlobalSpawnManager {
 		}
 
 		boolean shouldInitialSpawnPointBeActive = GlobalSpawn.GLOBAL_SPAWN_CONFIG.initialSpawnPointActive;
-		RegistryKey<World> initialSpawnWorldKey = RegistryKey.of(RegistryKeys.WORLD, new Identifier(GlobalSpawn.GLOBAL_SPAWN_CONFIG.initialSpawnPointDimension));
+		RegistryKey<World> initialSpawnWorldKey = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(GlobalSpawn.GLOBAL_SPAWN_CONFIG.initialSpawnPointDimension));
 		if (shouldInitialSpawnPointBeActive && existsWorld(server, initialSpawnWorldKey)) {
 			int x = GlobalSpawn.GLOBAL_SPAWN_CONFIG.initialSpawnPositionX;
 			int y = GlobalSpawn.GLOBAL_SPAWN_CONFIG.initialSpawnPositionY;

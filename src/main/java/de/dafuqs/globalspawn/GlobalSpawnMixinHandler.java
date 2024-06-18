@@ -44,32 +44,6 @@ public class GlobalSpawnMixinHandler {
 		}
 	}
 	
-	/**
-	 * Moving a newly joined player to the world spawn
-	 * @param serverPlayerEntity The player
-	 */
-	public static boolean movePlayerToSpawn(ServerPlayerEntity serverPlayerEntity) {
-		@Nullable BlockPos spawnBlockPos = null;
-		float angle = 0.0F;
-
-		if (GlobalSpawnManager.isInitialSpawnPointActive(serverPlayerEntity.server) && isNewPlayer(serverPlayerEntity)) {
-			spawnBlockPos = GlobalSpawnManager.getInitialSpawnPoint().getFinalSpawnPos(serverPlayerEntity.server);
-			angle = GlobalSpawnManager.getGlobalRespawnPoint().getAngle();
-		} else if (GlobalSpawnManager.isGlobalSpawnPointActive(serverPlayerEntity.server)) {
-			spawnBlockPos = GlobalSpawnManager.getGlobalRespawnPoint().getFinalSpawnPos(serverPlayerEntity.server);
-			angle = GlobalSpawnManager.getGlobalRespawnPoint().getAngle();
-		}
-
-		if (spawnBlockPos == null) {
-			return false;
-		}
-
-		serverPlayerEntity.refreshPositionAndAngles(spawnBlockPos, angle, 0.0F);
-		serverPlayerEntity.updatePosition(spawnBlockPos.getX() + 0.5F, spawnBlockPos.getY(), spawnBlockPos.getZ() + 0.5F);
-
-		return true;
-	}
-	
 	public static boolean isNewPlayer(ServerPlayerEntity serverPlayerEntity) {
 		return serverPlayerEntity.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.DEATHS)) == 0
 			&& serverPlayerEntity.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.WALK_ONE_CM)) == 0;

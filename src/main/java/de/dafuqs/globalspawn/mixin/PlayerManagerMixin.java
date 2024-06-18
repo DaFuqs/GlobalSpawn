@@ -33,5 +33,4 @@ public abstract class PlayerManagerMixin {
 		}
 		return Optional.of(nbt);
 	}
-	
 }

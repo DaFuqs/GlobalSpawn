@@ -1,0 +1,3 @@
+accessWidener v2 named
+accessible class net/minecraft/server/network/ServerPlayerEntity$RespawnPos
+accessible method net/minecraft/server/network/ServerPlayerEntity findRespawnPosition (Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;FZZ)Ljava/util/Optional;

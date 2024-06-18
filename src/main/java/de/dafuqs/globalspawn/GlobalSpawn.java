@@ -27,7 +27,7 @@ public class GlobalSpawn implements ModInitializer {
 
 		LOGGER.info("Registering Commands...");
 		ArgumentTypeRegistry.registerArgumentType(
-				new Identifier(MOD_ID, "spawn_criterion"),
+				Identifier.of(MOD_ID, "spawn_criterion"),
 				SpawnCriterionArgumentType.class,
 				ConstantArgumentSerializer.of(SpawnCriterionArgumentType::criterion)
 		);

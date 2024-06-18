@@ -28,8 +28,9 @@
   "mixins": [
     "globalspawn.mixins.json"
   ],
+  "accessWidener": "globalspawn.accesswidener",
   "depends": {
-    "minecraft": ">=1.20.5",
+    "minecraft": ">=1.21",
     "fabricloader": "*",
     "fabric": "*",
     "cloth-config2": "*"
