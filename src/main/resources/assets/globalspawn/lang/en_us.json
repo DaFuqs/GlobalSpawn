@@ -19,6 +19,7 @@
   "text.autoconfig.GlobalSpawn.option.globalRespawnPositionY": "Respawn Y coordinate",
   "text.autoconfig.GlobalSpawn.option.globalRespawnPositionZ": "Respawn Z coordinate",
   "text.autoconfig.GlobalSpawn.option.globalRespawnAngle": "Respawn Angle",
+  "text.autoconfig.GlobalSpawn.option.globalRespawnPositionSpread": "Respawn Criterion",
   "text.autoconfig.GlobalSpawn.option.globalRespawnCriterion": "Respawn Criterion",
 
   "text.autoconfig.GlobalSpawn.option.initialSpawnPointActive": "Initial Spawn Active (on first spawn of players)",
@@ -27,5 +28,6 @@
   "text.autoconfig.GlobalSpawn.option.initialSpawnPositionY": "First spawn Y coordinate",
   "text.autoconfig.GlobalSpawn.option.initialSpawnPositionZ": "First spawn Z coordinate",
   "text.autoconfig.GlobalSpawn.option.initialSpawnAngle": "First spawn Angle",
+  "text.autoconfig.GlobalSpawn.option.initialSpawnPositionSpread": "First Spawn Criterion",
   "text.autoconfig.GlobalSpawn.option.initialSpawnCriterion": "First Spawn Criterion"
 }
