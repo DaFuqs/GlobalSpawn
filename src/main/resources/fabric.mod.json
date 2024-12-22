@@ -30,10 +30,10 @@
   ],
   "accessWidener": "globalspawn.accesswidener",
   "depends": {
-    "minecraft": ">=1.21.1",
+    "minecraft": ">=${minecraft_version}",
     "fabricloader": "*",
-    "fabric": "*",
-    "cloth-config2": "*"
+    "fabric-api": "*",
+    "cloth-config": "*"
   },
   "suggests": { }
 }
