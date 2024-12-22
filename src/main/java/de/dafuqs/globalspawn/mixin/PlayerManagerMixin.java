@@ -18,7 +18,7 @@ public abstract class PlayerManagerMixin {
 	/**
 	 * Called everytime a player connects to the server,
 	 * and its profile is being loaded from disk
-	 * => Change the player's position as early as possible
+	 * => Change the player position as early as possible
 	 */
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @ModifyReturnValue(method = "loadPlayerData", at = @At("RETURN"))

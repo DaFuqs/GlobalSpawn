@@ -1,5 +1,6 @@
 package de.dafuqs.globalspawn.mixin;
 
+import com.llamalad7.mixinextras.sugar.*;
 import com.mojang.authlib.*;
 import de.dafuqs.globalspawn.*;
 import net.minecraft.entity.player.*;
@@ -34,40 +35,19 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 		super(world, pos, yaw, gameProfile);
 	}
 	
-	@Inject(method = "getSpawnPointDimension()Lnet/minecraft/registry/RegistryKey;", at = @At("HEAD"), cancellable = true)
-	public void globalspawn$getSpawnPointDimension(CallbackInfoReturnable<RegistryKey<World>> cir) {
+	@Inject(method = "getRespawnTarget(ZLnet/minecraft/world/TeleportTarget$PostDimensionTransition;)Lnet/minecraft/world/TeleportTarget;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/TeleportTarget;missingSpawnBlock(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/Entity;Lnet/minecraft/world/TeleportTarget$PostDimensionTransition;)Lnet/minecraft/world/TeleportTarget;"), cancellable = true)
+	public void globalSpawn$getObstructedRespawnTarget(boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition, CallbackInfoReturnable<TeleportTarget> cir) {
 		if(globalspawn$shouldOverrideRespawn()) {
-			cir.setReturnValue(GlobalSpawnManager.getGlobalRespawnPoint().getDimension());
-		} else {
-			cir.setReturnValue(this.spawnPointDimension);
+			GlobalSpawnPoint p = GlobalSpawnManager.getGlobalRespawnPoint();
+			cir.setReturnValue(new TeleportTarget(server.getWorld(p.getDimension()), Vec3d.ofCenter(p.getFinalSpawnPos(server)), Vec3d.ZERO, p.getAngle(), 0.0F, postDimensionTransition));
 		}
 	}
 	
-	@Inject(method = "getSpawnPointPosition()Lnet/minecraft/util/math/BlockPos;", at = @At("HEAD"), cancellable = true)
-	public void globalspawn$getSpawnPointPosition(CallbackInfoReturnable<BlockPos> cir) {
-		if(globalspawn$shouldOverrideRespawn()) {
-			cir.setReturnValue(GlobalSpawnManager.getGlobalRespawnPoint().getPos());
-		} else {
-			cir.setReturnValue(this.spawnPointPosition);
-		}
-	}
-	
-	@Inject(method = "getSpawnAngle()F", at = @At("HEAD"), cancellable = true)
-	public void globalspawn$getSpawnAngle(CallbackInfoReturnable<Float> cir) {
-		if(globalspawn$shouldOverrideRespawn()) {
-			cir.setReturnValue(GlobalSpawnManager.getGlobalRespawnPoint().getAngle());
-		} else {
-			cir.setReturnValue(this.spawnAngle);
-		}
-	}
-	
-	
-	@Inject(method = "isSpawnForced()Z", at = @At("HEAD"), cancellable = true)
-	public void globalspawn$isSpawnForced(CallbackInfoReturnable<Boolean> cir) {
-		if(globalspawn$shouldOverrideRespawn()) {
-			cir.setReturnValue(true);
-		} else {
-			cir.setReturnValue(this.spawnForced);
+	@Inject(method = "getRespawnTarget(ZLnet/minecraft/world/TeleportTarget$PostDimensionTransition;)Lnet/minecraft/world/TeleportTarget;", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getWorld(Lnet/minecraft/registry/RegistryKey;)Lnet/minecraft/server/world/ServerWorld;", shift = At.Shift.AFTER), cancellable = true)
+	public void globalSpawn$getUnsetRespawnTarget(boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition, CallbackInfoReturnable<TeleportTarget> cir, @Local BlockPos blockPos) {
+		if (blockPos == null && globalspawn$shouldOverrideRespawn()) {
+			GlobalSpawnPoint p = GlobalSpawnManager.getGlobalRespawnPoint();
+			cir.setReturnValue(new TeleportTarget(server.getWorld(p.getDimension()), Vec3d.ofCenter(p.getFinalSpawnPos(server)), Vec3d.ZERO, p.getAngle(), 0.0F, postDimensionTransition));
 		}
 	}
 	
@@ -85,4 +65,5 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 			return true;
 		}
 	}
+	
 }
