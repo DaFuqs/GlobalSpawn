@@ -5,7 +5,6 @@ import com.mojang.authlib.*;
 import de.dafuqs.globalspawn.*;
 import net.minecraft.entity.player.*;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.*;
 import net.minecraft.server.*;
 import net.minecraft.server.network.*;
 import net.minecraft.server.world.*;
@@ -21,15 +20,11 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 	
 	@Shadow @Final public MinecraftServer server;
 	
-	@Shadow private RegistryKey<World> spawnPointDimension;
-	
-	@Shadow private boolean spawnForced;
-	
-	@Shadow private float spawnAngle;
-	
-	@Shadow @Nullable private BlockPos spawnPointPosition;
-	
 	@Shadow public abstract void readCustomDataFromNbt(NbtCompound nbt);
+	
+	@Shadow
+	@Nullable
+	private ServerPlayerEntity.Respawn respawn;
 	
 	public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
 		super(world, pos, yaw, gameProfile);
@@ -44,8 +39,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 	}
 	
 	@Inject(method = "getRespawnTarget(ZLnet/minecraft/world/TeleportTarget$PostDimensionTransition;)Lnet/minecraft/world/TeleportTarget;", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getWorld(Lnet/minecraft/registry/RegistryKey;)Lnet/minecraft/server/world/ServerWorld;", shift = At.Shift.AFTER), cancellable = true)
-	public void globalSpawn$getUnsetRespawnTarget(boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition, CallbackInfoReturnable<TeleportTarget> cir, @Local BlockPos blockPos) {
-		if (blockPos == null && globalspawn$shouldOverrideRespawn()) {
+	public void globalSpawn$getUnsetRespawnTarget(boolean alive, TeleportTarget.PostDimensionTransition postDimensionTransition, CallbackInfoReturnable<TeleportTarget> cir, @Local ServerPlayerEntity.Respawn respawn) {
+		if (respawn == null && globalspawn$shouldOverrideRespawn()) {
 			GlobalSpawnPoint p = GlobalSpawnManager.getGlobalRespawnPoint();
 			cir.setReturnValue(new TeleportTarget(server.getWorld(p.getDimension()), Vec3d.ofCenter(p.getFinalSpawnPos(server)), Vec3d.ZERO, p.getAngle(), 0.0F, postDimensionTransition));
 		}
@@ -56,11 +51,11 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 		if(!GlobalSpawnManager.isGlobalSpawnPointActive(this.server)) {
 			return false;
 		}
-
-		BlockPos blockPos = this.spawnPointPosition;
-		ServerWorld serverWorld = this.server.getWorld(spawnPointDimension);
-		if (serverWorld != null && blockPos != null) {
-			return ServerPlayerEntity.findRespawnPosition(serverWorld, blockPos, this.spawnAngle, this.spawnForced, true).isEmpty();
+		
+		@Nullable ServerPlayerEntity.Respawn respawn = this.respawn;
+		if (respawn != null) {
+			ServerWorld serverWorld = this.server.getWorld(respawn.dimension());
+			return ServerPlayerEntity.findRespawnPosition(serverWorld, respawn, true).isEmpty();
 		} else {
 			return true;
 		}
